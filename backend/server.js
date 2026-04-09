@@ -1,8 +1,8 @@
 import app from "./app.js"
 
-const PORT = 3000
 
-app.listen(PORT, () => {
-  console.log(`Server running at: http://localhost:${PORT}`)
-  console.log(`Student API: http://localhost:${PORT}/api/`)
+
+app.listen(Number(process.env.PORT), () => {
+  console.log(`Server running at: http://localhost:${Number(process.env.PORT)}`)
+  console.log(`Student API: http://localhost:${Number(process.env.PORT)}/api/`)
 })
