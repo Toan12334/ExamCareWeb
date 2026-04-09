@@ -13,7 +13,7 @@ model AnalyticsSkillResults {
   SkillId        Int?
   TotalQuestions Int?
   CorrectAnswers Int?
-  Accuracy       Decimal?      @db.Decimal(5, 2)
+  Accuracy       Decimal?      
   Skills         Skills?       @relation(fields: [SkillId], references: [SkillId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Skill__6FE99F9F")
   StudentExams   StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Stude__6EF57B66")
 }
@@ -24,7 +24,7 @@ model AnalyticsTopicResults {
   TopicId        Int?
   TotalQuestions Int?
   CorrectAnswers Int?
-  Accuracy       Decimal?      @db.Decimal(5, 2)
+  Accuracy       Decimal?     
   StudentExams   StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Stude__72C60C4A")
   Topics         Topics?       @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Topic__73BA3083")
 }
@@ -32,9 +32,9 @@ model AnalyticsTopicResults {
 model AnswerLogs {
   LogId             Int               @id(map: "PK__AnswerLo__5E5486482767D367") @default(autoincrement())
   AttemptQuestionId Int?
-  ActionType        String?           @db.NVarChar(50)
-  SelectedOption    String?           @db.NVarChar(50)
-  CreatedAt         DateTime?         @default(now(), map: "DF__AnswerLog__Creat__6754599E") @db.DateTime
+  ActionType        String?           
+  SelectedOption    String?          
+  CreatedAt         DateTime?         @default(now(), map: "DF__AnswerLog__Creat__6754599E") 
   AttemptQuestions  AttemptQuestions? @relation(fields: [AttemptQuestionId], references: [AttemptQuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__AnswerLog__Attem__68487DD7")
 }
 
@@ -42,8 +42,8 @@ model AttemptQuestions {
   AttemptQuestionId  Int              @id(map: "PK__AttemptQ__DA7E3FE9A03229E4") @default(autoincrement())
   StudentExamId      Int?
   QuestionId         Int?
-  StartTime          DateTime?        @db.DateTime
-  EndTime            DateTime?        @db.DateTime
+  StartTime          DateTime?       
+  EndTime            DateTime?        
   TimeSpent          Int?
   AnswerChangedCount Int?
   IsCorrect          Boolean?
@@ -55,15 +55,15 @@ model AttemptQuestions {
 
 model DifficultyLevels {
   DifficultyId Int         @id(map: "PK__Difficul__161A32675FA41675")
-  LevelName    String?     @db.NVarChar(50)
+  LevelName    String?     
   Questions    Questions[]
 }
 
 model ExamBehaviorLogs {
   Id            Int           @id(map: "PK__ExamBeha__3214EC07CB9C28BA") @default(autoincrement())
   StudentExamId Int?
-  EventType     String?       @db.NVarChar(100)
-  EventTime     DateTime?     @default(now(), map: "DF__ExamBehav__Event__6B24EA82") @db.DateTime
+  EventType     String?       
+  EventTime     DateTime?     @default(now(), map: "DF__ExamBehav__Event__6B24EA82") 
   StudentExams  StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__ExamBehav__Stude__6C190EBB")
 }
 
@@ -79,9 +79,9 @@ model ExamQuestions {
 
 model Exams {
   ExamId        Int             @id(map: "PK__Exams__297521C7B5001BF3") @default(autoincrement())
-  ExamName      String?         @db.NVarChar(200)
+  ExamName      String?         
   Duration      Int?
-  CreatedAt     DateTime?       @default(now(), map: "DF__Exams__CreatedAt__5535A963") @db.DateTime
+  CreatedAt     DateTime?       @default(now(), map: "DF__Exams__CreatedAt__5535A963") 
   IsActive      Boolean?
   ExamQuestions ExamQuestions[]
   StudentExams  StudentExams[]
@@ -90,8 +90,8 @@ model Exams {
 model QuestionImages {
   ImageId      Int        @id(map: "PK__Question__7516F70C9928B0EE") @default(autoincrement())
   QuestionId   Int?
-  ImageUrl     String?    @db.NVarChar(500)
-  Caption      String?    @db.NVarChar(300)
+  ImageUrl     String?    
+  Caption      String?    
   DisplayOrder Int?
   Questions    Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__QuestionI__Quest__01142BA1")
 }
@@ -99,8 +99,8 @@ model QuestionImages {
 model QuestionOptions {
   OptionId      Int        @id(map: "PK__Question__92C7A1FF7DF616A5") @default(autoincrement())
   QuestionId    Int?
-  OptionLabel   String?    @db.Char(1)
-  OptionContent String?    @db.NVarChar(Max)
+  OptionLabel   String?    
+  OptionContent String?    
   IsCorrect     Boolean?
   Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__QuestionO__Quest__4CA06362")
 }
@@ -110,9 +110,9 @@ model Questions {
   TopicId             Int?
   DifficultyId        Int?
   TypeId              Int?
-  QuestionContent     String?               @db.NVarChar(Max)
-  Explanation         String?               @db.NVarChar(Max)
-  CreatedAt           DateTime?             @default(now(), map: "DF__Questions__Creat__4316F928") @db.DateTime
+  QuestionContent     String?               
+  Explanation         String?               
+  CreatedAt           DateTime?             @default(now(), map: "DF__Questions__Creat__4316F928") 
   AttemptQuestions    AttemptQuestions[]
   ExamQuestions       ExamQuestions[]
   QuestionImages      QuestionImages[]
@@ -136,21 +136,21 @@ model QuestionSkills {
 
 model QuestionTypes {
   TypeId    Int         @id(map: "PK__Question__516F03B5964DE938")
-  TypeName  String?     @db.NVarChar(100)
+  TypeName  String?     
   Questions Questions[]
 }
 
 model ShortAnswers {
   AnswerId      Int        @id(map: "PK__ShortAns__D48250042449426F") @default(autoincrement())
   QuestionId    Int?
-  CorrectAnswer String?    @db.NVarChar(100)
+  CorrectAnswer String?    
   Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__ShortAnsw__Quest__52593CB8")
 }
 
 model Skills {
   SkillId               Int                     @id(map: "PK__Skills__DFA09187C52228E2") @default(autoincrement())
   TopicId               Int?
-  SkillName             String?                 @db.NVarChar(200)
+  SkillName             String?                 
   AnalyticsSkillResults AnalyticsSkillResults[]
   QuestionSkills        QuestionSkills[]
   Topics                Topics?                 @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Skills__TopicId__3C69FB99")
@@ -159,9 +159,9 @@ model Skills {
 model StudentAnswers {
   Id                Int               @id(map: "PK__StudentA__3214EC07573DDED4") @default(autoincrement())
   AttemptQuestionId Int?
-  SelectedOption    String?           @db.NVarChar(50)
-  ShortAnswer       String?           @db.NVarChar(100)
-  CreatedAt         DateTime?         @default(now(), map: "DF__StudentAn__Creat__6383C8BA") @db.DateTime
+  SelectedOption    String?          
+  ShortAnswer       String?           
+  CreatedAt         DateTime?         @default(now(), map: "DF__StudentAn__Creat__6383C8BA") 
   AttemptQuestions  AttemptQuestions? @relation(fields: [AttemptQuestionId], references: [AttemptQuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__StudentAn__Attem__6477ECF3")
 }
 
@@ -169,13 +169,14 @@ model StudentExams {
   StudentExamId         Int                      @id(map: "PK__StudentE__C57949762A0CE1D4") @default(autoincrement())
   StudentId             Int?
   ExamId                Int?
-  Score                 Decimal?                 @db.Decimal(5, 2)
-  Status                String                   @default("N'InProgress'", map: "DF_StudentExams_Status") @db.NVarChar(30)
+  Score                 Decimal?                 
+  Status                String                   @default("N'InProgress'", map: "DF_StudentExams_Status") 
+  
   ExpireAt              DateTime?
   SubmittedAt           DateTime?
   LastSavedAt           DateTime?
   IsAutoSubmitted       Boolean                  @default(false, map: "DF_StudentExams_IsAutoSubmitted")
-  EntryCodeUsed         String?                  @db.NVarChar(20)
+  EntryCodeUsed         String?                  
   AttemptNo             Int                      @default(1, map: "DF_StudentExams_AttemptNo")
   CreatedAt             DateTime                 @default(dbgenerated("sysutcdatetime()"), map: "DF_StudentExams_CreatedAt")
   UpdatedAt             DateTime?
@@ -190,15 +191,15 @@ model StudentExams {
 
 model Students {
   StudentId    Int            @id(map: "PK__Students__32C52B99E071CC62") @default(autoincrement())
-  FullName     String?        @db.NVarChar(200)
-  Email        String?        @db.NVarChar(200)
-  CreatedAt    DateTime?      @default(now(), map: "DF__Students__Create__37A5467C") @db.DateTime
+  FullName     String?        
+  Email        String?        
+  CreatedAt    DateTime?      @default(now(), map: "DF__Students__Create__37A5467C") 
   is_deleted   Boolean        @default(false)
   StudentExams StudentExams[]
 }
 
 model sysdiagrams {
-  name         String @db.NVarChar(128)
+  name         String 
   principal_id Int
   diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B619BAE70F0") @default(autoincrement())
   version      Int?
@@ -209,7 +210,7 @@ model sysdiagrams {
 
 model Topics {
   TopicId               Int                     @id(map: "PK__Topics__022E0F5D11A92E42") @default(autoincrement())
-  TopicName             String?                 @db.NVarChar(200)
+  TopicName             String?                 
   AnalyticsTopicResults AnalyticsTopicResults[]
   Questions             Questions[]
   Skills                Skills[]
@@ -218,8 +219,8 @@ model Topics {
 model TrueFalseStatements {
   StatementId      Int        @id(map: "PK__TrueFals__2B7E040258DAAD8A") @default(autoincrement())
   QuestionId       Int?
-  StatementLabel   String?    @db.Char(1)
-  StatementContent String?    @db.NVarChar(Max)
+  StatementLabel   String?    
+  StatementContent String?    
   IsCorrect        Boolean?
   Questions        Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__TrueFalse__Quest__4F7CD00D")
 }
