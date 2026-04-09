@@ -1,17 +1,27 @@
+import express from 'express'; // 1. Import express trước
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 1. Phục vụ các file tĩnh từ thư mục public
+const app = express(); // 2. PHẢI CÓ DÒNG NÀY để tạo biến 'app'
+
+// 3. Sau đó mới đến các lệnh sử dụng 'app'
+app.use(express.json()); // Cho phép đọc dữ liệu JSON
+
+// 4. Cấu hình thư mục public để chứa React
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2. Các route API của bạn (giữ nguyên)
-app.use('/api/students', studentRoutes); 
+// ... Các route API của bạn (ví dụ app.use('/api', ...)) ...
 
-// 3. QUAN TRỌNG: Route cuối cùng để xử lý React Router
-// Nếu truy cập bất kỳ đường dẫn nào không khớp với API, hãy trả về index.html
+// 5. Cuối cùng mới là route '*' cho React
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 6. Khởi động server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
