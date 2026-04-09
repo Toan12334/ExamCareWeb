@@ -1,0 +1,225 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model AnalyticsSkillResults {
+  Id             Int           @id(map: "PK__Analytic__3214EC07209CBF94") @default(autoincrement())
+  StudentExamId  Int?
+  SkillId        Int?
+  TotalQuestions Int?
+  CorrectAnswers Int?
+  Accuracy       Decimal?      @db.Decimal(5, 2)
+  Skills         Skills?       @relation(fields: [SkillId], references: [SkillId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Skill__6FE99F9F")
+  StudentExams   StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Stude__6EF57B66")
+}
+
+model AnalyticsTopicResults {
+  Id             Int           @id(map: "PK__Analytic__3214EC07501D140F") @default(autoincrement())
+  StudentExamId  Int?
+  TopicId        Int?
+  TotalQuestions Int?
+  CorrectAnswers Int?
+  Accuracy       Decimal?      @db.Decimal(5, 2)
+  StudentExams   StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Stude__72C60C4A")
+  Topics         Topics?       @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Analytics__Topic__73BA3083")
+}
+
+model AnswerLogs {
+  LogId             Int               @id(map: "PK__AnswerLo__5E5486482767D367") @default(autoincrement())
+  AttemptQuestionId Int?
+  ActionType        String?           @db.NVarChar(50)
+  SelectedOption    String?           @db.NVarChar(50)
+  CreatedAt         DateTime?         @default(now(), map: "DF__AnswerLog__Creat__6754599E") @db.DateTime
+  AttemptQuestions  AttemptQuestions? @relation(fields: [AttemptQuestionId], references: [AttemptQuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__AnswerLog__Attem__68487DD7")
+}
+
+model AttemptQuestions {
+  AttemptQuestionId  Int              @id(map: "PK__AttemptQ__DA7E3FE9A03229E4") @default(autoincrement())
+  StudentExamId      Int?
+  QuestionId         Int?
+  StartTime          DateTime?        @db.DateTime
+  EndTime            DateTime?        @db.DateTime
+  TimeSpent          Int?
+  AnswerChangedCount Int?
+  IsCorrect          Boolean?
+  AnswerLogs         AnswerLogs[]
+  Questions          Questions?       @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__AttemptQu__Quest__60A75C0F")
+  StudentExams       StudentExams?    @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__AttemptQu__Stude__5FB337D6")
+  StudentAnswers     StudentAnswers[]
+}
+
+model DifficultyLevels {
+  DifficultyId Int         @id(map: "PK__Difficul__161A32675FA41675")
+  LevelName    String?     @db.NVarChar(50)
+  Questions    Questions[]
+}
+
+model ExamBehaviorLogs {
+  Id            Int           @id(map: "PK__ExamBeha__3214EC07CB9C28BA") @default(autoincrement())
+  StudentExamId Int?
+  EventType     String?       @db.NVarChar(100)
+  EventTime     DateTime?     @default(now(), map: "DF__ExamBehav__Event__6B24EA82") @db.DateTime
+  StudentExams  StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__ExamBehav__Stude__6C190EBB")
+}
+
+model ExamQuestions {
+  Id            Int        @id(map: "PK__ExamQues__3214EC07127777D9") @default(autoincrement())
+  ExamId        Int?
+  QuestionId    Int?
+  Part          Int?
+  QuestionOrder Int?
+  Exams         Exams?     @relation(fields: [ExamId], references: [ExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__ExamQuest__ExamI__5812160E")
+  Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__ExamQuest__Quest__59063A47")
+}
+
+model Exams {
+  ExamId        Int             @id(map: "PK__Exams__297521C7B5001BF3") @default(autoincrement())
+  ExamName      String?         @db.NVarChar(200)
+  Duration      Int?
+  CreatedAt     DateTime?       @default(now(), map: "DF__Exams__CreatedAt__5535A963") @db.DateTime
+  IsActive      Boolean?
+  ExamQuestions ExamQuestions[]
+  StudentExams  StudentExams[]
+}
+
+model QuestionImages {
+  ImageId      Int        @id(map: "PK__Question__7516F70C9928B0EE") @default(autoincrement())
+  QuestionId   Int?
+  ImageUrl     String?    @db.NVarChar(500)
+  Caption      String?    @db.NVarChar(300)
+  DisplayOrder Int?
+  Questions    Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__QuestionI__Quest__01142BA1")
+}
+
+model QuestionOptions {
+  OptionId      Int        @id(map: "PK__Question__92C7A1FF7DF616A5") @default(autoincrement())
+  QuestionId    Int?
+  OptionLabel   String?    @db.Char(1)
+  OptionContent String?    @db.NVarChar(Max)
+  IsCorrect     Boolean?
+  Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__QuestionO__Quest__4CA06362")
+}
+
+model Questions {
+  QuestionId          Int                   @id(map: "PK__Question__0DC06FACBEBA77FE") @default(autoincrement())
+  TopicId             Int?
+  DifficultyId        Int?
+  TypeId              Int?
+  QuestionContent     String?               @db.NVarChar(Max)
+  Explanation         String?               @db.NVarChar(Max)
+  CreatedAt           DateTime?             @default(now(), map: "DF__Questions__Creat__4316F928") @db.DateTime
+  AttemptQuestions    AttemptQuestions[]
+  ExamQuestions       ExamQuestions[]
+  QuestionImages      QuestionImages[]
+  QuestionOptions     QuestionOptions[]
+  DifficultyLevels    DifficultyLevels?     @relation(fields: [DifficultyId], references: [DifficultyId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Questions__Diffi__44FF419A")
+  Topics              Topics?               @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Questions__Topic__440B1D61")
+  QuestionTypes       QuestionTypes?        @relation(fields: [TypeId], references: [TypeId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Questions__TypeI__45F365D3")
+  QuestionSkills      QuestionSkills[]
+  ShortAnswers        ShortAnswers[]
+  TrueFalseStatements TrueFalseStatements[]
+}
+
+model QuestionSkills {
+  QuestionId Int
+  SkillId    Int
+  Questions  Questions @relation(fields: [QuestionId], references: [QuestionId], onUpdate: NoAction, map: "FK__QuestionS__Quest__48CFD27E")
+  Skills     Skills    @relation(fields: [SkillId], references: [SkillId], onUpdate: NoAction, map: "FK__QuestionS__Skill__49C3F6B7")
+
+  @@id([QuestionId, SkillId], map: "PK__Question__603A66B42F37EFF7")
+}
+
+model QuestionTypes {
+  TypeId    Int         @id(map: "PK__Question__516F03B5964DE938")
+  TypeName  String?     @db.NVarChar(100)
+  Questions Questions[]
+}
+
+model ShortAnswers {
+  AnswerId      Int        @id(map: "PK__ShortAns__D48250042449426F") @default(autoincrement())
+  QuestionId    Int?
+  CorrectAnswer String?    @db.NVarChar(100)
+  Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__ShortAnsw__Quest__52593CB8")
+}
+
+model Skills {
+  SkillId               Int                     @id(map: "PK__Skills__DFA09187C52228E2") @default(autoincrement())
+  TopicId               Int?
+  SkillName             String?                 @db.NVarChar(200)
+  AnalyticsSkillResults AnalyticsSkillResults[]
+  QuestionSkills        QuestionSkills[]
+  Topics                Topics?                 @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction, map: "FK__Skills__TopicId__3C69FB99")
+}
+
+model StudentAnswers {
+  Id                Int               @id(map: "PK__StudentA__3214EC07573DDED4") @default(autoincrement())
+  AttemptQuestionId Int?
+  SelectedOption    String?           @db.NVarChar(50)
+  ShortAnswer       String?           @db.NVarChar(100)
+  CreatedAt         DateTime?         @default(now(), map: "DF__StudentAn__Creat__6383C8BA") @db.DateTime
+  AttemptQuestions  AttemptQuestions? @relation(fields: [AttemptQuestionId], references: [AttemptQuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__StudentAn__Attem__6477ECF3")
+}
+
+model StudentExams {
+  StudentExamId         Int                      @id(map: "PK__StudentE__C57949762A0CE1D4") @default(autoincrement())
+  StudentId             Int?
+  ExamId                Int?
+  Score                 Decimal?                 @db.Decimal(5, 2)
+  Status                String                   @default("N'InProgress'", map: "DF_StudentExams_Status") @db.NVarChar(30)
+  ExpireAt              DateTime?
+  SubmittedAt           DateTime?
+  LastSavedAt           DateTime?
+  IsAutoSubmitted       Boolean                  @default(false, map: "DF_StudentExams_IsAutoSubmitted")
+  EntryCodeUsed         String?                  @db.NVarChar(20)
+  AttemptNo             Int                      @default(1, map: "DF_StudentExams_AttemptNo")
+  CreatedAt             DateTime                 @default(dbgenerated("sysutcdatetime()"), map: "DF_StudentExams_CreatedAt")
+  UpdatedAt             DateTime?
+  RowVersion            Unsupported("timestamp")
+  AnalyticsSkillResults AnalyticsSkillResults[]
+  AnalyticsTopicResults AnalyticsTopicResults[]
+  AttemptQuestions      AttemptQuestions[]
+  ExamBehaviorLogs      ExamBehaviorLogs[]
+  Exams                 Exams?                   @relation(fields: [ExamId], references: [ExamId], onDelete: NoAction, onUpdate: NoAction, map: "FK__StudentEx__ExamI__5CD6CB2B")
+  Students              Students?                @relation(fields: [StudentId], references: [StudentId], onDelete: NoAction, onUpdate: NoAction, map: "FK__StudentEx__Stude__5BE2A6F2")
+}
+
+model Students {
+  StudentId    Int            @id(map: "PK__Students__32C52B99E071CC62") @default(autoincrement())
+  FullName     String?        @db.NVarChar(200)
+  Email        String?        @db.NVarChar(200)
+  CreatedAt    DateTime?      @default(now(), map: "DF__Students__Create__37A5467C") @db.DateTime
+  is_deleted   Boolean        @default(false)
+  StudentExams StudentExams[]
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B619BAE70F0") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model Topics {
+  TopicId               Int                     @id(map: "PK__Topics__022E0F5D11A92E42") @default(autoincrement())
+  TopicName             String?                 @db.NVarChar(200)
+  AnalyticsTopicResults AnalyticsTopicResults[]
+  Questions             Questions[]
+  Skills                Skills[]
+}
+
+model TrueFalseStatements {
+  StatementId      Int        @id(map: "PK__TrueFals__2B7E040258DAAD8A") @default(autoincrement())
+  QuestionId       Int?
+  StatementLabel   String?    @db.Char(1)
+  StatementContent String?    @db.NVarChar(Max)
+  IsCorrect        Boolean?
+  Questions        Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction, map: "FK__TrueFalse__Quest__4F7CD00D")
+}

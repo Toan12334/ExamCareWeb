@@ -1,0 +1,76 @@
+.math-editor-container {
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .math-textarea {
+    width: 100%;
+    height: 200px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 15px;
+  }
+  
+  .math-preview {
+    width: 100%;
+    min-height: 150px;
+    padding: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fafafa;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  
+  .math-dropzone {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    transition: 0.2s;
+  }
+  
+  .math-dropzone.active {
+    background: #eef6ff;
+    border-color: #4da3ff;
+  }
+  
+  .image-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .image-item {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #fff;
+  }
+  
+  .image-item img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    display: block;
+  }
+  
+  .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
