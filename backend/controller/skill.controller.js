@@ -35,7 +35,9 @@ class SkillController {
 
       res.json(result)
     } catch (error) {
+      
       res.status(500).json({ message: error.message })
+      console.error("==== LỖI TẠI SKILL SEARCH & FILTER ====", error)
     }
   }
 
@@ -46,6 +48,7 @@ class SkillController {
       res.json(skills)
     } catch (error) {
       res.status(500).json({ message: error.message })
+      console.error("getall looi:",error)
     }
   }
 
