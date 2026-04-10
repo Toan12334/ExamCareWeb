@@ -25,19 +25,21 @@ export default function SkillPage() {
     ]
 
 
-
     const handleSubmit = async (data) => {
-        if (data.SkillId) {
-            await updateSkillData(data.SkillId, data)
-
-            await fetchSkills({}, pagination.page)
-
-        } else {
-            await createNewSkill(data)
-            await fetchSkills({}, 1)
+        try {
+            if (data.SkillId) {
+                await updateSkillData(data.SkillId, data)
+                await fetchSkills(filters, pagination.page) // Giữ lại filters như mình góp ý ở trên nhé
+            } else {
+                await createNewSkill(data)
+                await fetchSkills({}, 1)
+            }
+            setOpenForm(false) 
+            
+        } catch (error) {
+            console.error("Lỗi khi lưu dữ liệu:", error);
+            alert("Có lỗi xảy ra khi lưu! Vui lòng kiểm tra lại (có thể xem F12 console).");
         }
-
-        setOpenForm(false)
     }
     const handleGetSkillId = async (id) => {
         const res = await getSkillId(id)
