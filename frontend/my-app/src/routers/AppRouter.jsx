@@ -9,6 +9,7 @@ import Layout from "../layouts/Layout"
 import ExamManagePage from "../pages/exam/ExamManagePage"
 import QuestionForm from "../components/form/question_form/QuestionForm"
 import ExamBuilderRedesign from "../components/form/exam_question_form/ExamQuestionForm"
+import StudentExamPage from "../pages/StudentExamPage"
 export default function AppRouter() {
     return (
         <Routes>
@@ -22,6 +23,7 @@ export default function AppRouter() {
                 <Route path={ROUTES.EXAM_MANAGE.EXAM_PAPER} element={<ExamManagePage />} />
                 <Route path={ROUTES.EXAM_MANAGE.CREATE_EXAM} element={<ExamBuilderRedesign />} />
                 <Route path={ROUTES.EXAM_MANAGE.EDIT_EXAM} element={<ExamBuilderRedesign />} />
+                <Route path={ROUTES.EXAM_MANAGE.STUDENT_EXAM} element={<StudentExamPage />} />
                 <Route path={ROUTES.HOME} element={<StudentManagePage />} />
 
             </Route>

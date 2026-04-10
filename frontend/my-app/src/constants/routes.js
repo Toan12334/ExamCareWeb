@@ -36,7 +36,8 @@ export const ROUTES = {
   EXAM_MANAGE: {
     EXAM_PAPER: `${ROUTE_PREFIX.EXAM}/exam-papers`,
     CREATE_EXAM: `${ROUTE_PREFIX.EXAM}/create`,
-    EDIT_EXAM: `${ROUTE_PREFIX.EXAM}/edit/:id`
+    EDIT_EXAM: `${ROUTE_PREFIX.EXAM}/edit/:id`,
+    STUDENT_EXAM:`${ROUTE_PREFIX.EXAM}/student-exam`
   },
   CUSTOMER: {
     LIST: `${ROUTE_PREFIX.CUSTOMER}`
