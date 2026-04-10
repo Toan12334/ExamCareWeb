@@ -1,16 +1,14 @@
 import prisma from "../config/db.js";
 
 class StudentExamRepository {
-  async startExam(studentId: number, examId: number) {
+  async startExam(studentId, examId) {
     return await prisma.$transaction(async (tx) => {
-      const currentTimeResult = await tx.$queryRaw<{ now: Date }[]>`
+      const currentTimeResult = await tx.$queryRaw`
         SELECT NOW() AS now
       `;
       const currentTime = currentTimeResult[0].now;
   
-      const examRows = await tx.$queryRaw<
-        { duration: number }[]
-      >`
+      const examRows = await tx.$queryRaw`
         SELECT "Duration" AS duration
         FROM "Exams"
         WHERE "ExamId" = ${examId}
@@ -24,12 +22,7 @@ class StudentExamRepository {
   
       const duration = examRows[0].duration;
   
-      const existingRows = await tx.$queryRaw<
-        {
-          studentExamId: number;
-          expireAt: Date;
-        }[]
-      >`
+      const existingRows = await tx.$queryRaw`
         SELECT
           "StudentExamId" AS "studentExamId",
           "ExpireAt" AS "expireAt"
@@ -42,12 +35,12 @@ class StudentExamRepository {
         FOR UPDATE
       `;
   
-      let studentExamId: number;
+      let studentExamId;
   
       if (existingRows.length > 0) {
         const existing = existingRows[0];
   
-        if (existing.expireAt < currentTime) {
+        if (new Date(existing.expireAt) < new Date(currentTime)) {
           await tx.$executeRaw`
             UPDATE "StudentExams"
             SET
@@ -61,20 +54,17 @@ class StudentExamRepository {
   
         studentExamId = existing.studentExamId;
       } else {
-        const attemptRows = await tx.$queryRaw<
-          { nextAttemptNo: number }[]
-        >`
+        const attemptRows = await tx.$queryRaw`
           SELECT COALESCE(MAX("AttemptNo"), 0) + 1 AS "nextAttemptNo"
           FROM "StudentExams"
           WHERE "StudentId" = ${studentId}
             AND "ExamId" = ${examId}
         `;
   
-        const nextAttemptNo = attemptRows[0].nextAttemptNo;
+        const nextAttemptNo = Number(attemptRows[0].nextAttemptNo);
+        const expireAt = new Date(new Date(currentTime).getTime() + duration * 60 * 1000);
   
-        const insertRows = await tx.$queryRaw<
-          { studentExamId: number }[]
-        >`
+        const insertRows = await tx.$queryRaw`
           INSERT INTO "StudentExams" (
             "StudentId",
             "ExamId",
@@ -88,7 +78,7 @@ class StudentExamRepository {
             ${studentId},
             ${examId},
             'InProgress',
-            ${new Date(currentTime.getTime() + duration * 60 * 1000)},
+            ${expireAt},
             ${nextAttemptNo},
             ${currentTime},
             false
@@ -99,7 +89,7 @@ class StudentExamRepository {
         studentExamId = insertRows[0].studentExamId;
       }
   
-      const result = await tx.$queryRaw<{ jsonresult: any }[]>`
+      const result = await tx.$queryRaw`
         SELECT jsonb_build_object(
           'StudentExamId', se."StudentExamId",
           'Status', se."Status",
@@ -182,7 +172,7 @@ class StudentExamRepository {
         return null;
       }
   
-      return result[0].jsonresult ?? null;
+      return result[0].jsonresult || null;
     });
   }
 
