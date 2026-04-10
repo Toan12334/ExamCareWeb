@@ -9,4 +9,4 @@ router.get("/:id", (req, res) => skillController.getSkill(req, res))
 router.post("/", (req, res) => skillController.createSkill(req, res))
 router.put("/:id", (req, res) => skillController.updateSkill(req, res))
 router.delete("/:id", (req, res) => skillController.deleteSkill(req, res))
-export default router
+export default router   
