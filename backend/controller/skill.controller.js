@@ -72,6 +72,7 @@ class SkillController {
 
       res.status(201).json(skill)
     } catch (error) {
+      console.error("lỗi tạo skill :",error)
       res.status(400).json({ message: error.message })
     }
   }
