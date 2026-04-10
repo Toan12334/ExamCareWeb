@@ -12,6 +12,12 @@ import upLoadRoutes from "./routes/upload.route.js"
 import routeExam from "./routes/exam.route.js"
 import studentExamRoute from  "./routes/studentExam.route.js"
 
+// 👇👇👇 THÊM FIX LỖI BIGINT Ở ĐÂY 👇👇👇
+BigInt.prototype.toJSON = function () {
+  return this.toString(); 
+};
+// 👆👆👆 ============================== 👆👆👆
+
 // 3. Khai báo __dirname (vì bạn dùng ES Modules - import)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
