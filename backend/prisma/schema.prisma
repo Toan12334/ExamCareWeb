@@ -54,13 +54,13 @@ model AttemptQuestions {
 }
 
 model DifficultyLevels {
-  DifficultyId Int         @id
+  DifficultyId Int         @id @default(autoincrement())
   LevelName    String?     
   Questions    Questions[]
 }
 
 model ExamBehaviorLogs {
-  Id            Int           @id
+  Id            Int           @id @default(autoincrement())
   StudentExamId Int?
   EventType     String?       
   EventTime     DateTime?     @default(now()) 
@@ -68,7 +68,7 @@ model ExamBehaviorLogs {
 }
 
 model ExamQuestions {
-  Id            Int        @id
+  Id            Int        @id @default(autoincrement())
   ExamId        Int?
   QuestionId    Int?
   Part          Int?
@@ -78,7 +78,7 @@ model ExamQuestions {
 }
 
 model Exams {
-  ExamId        Int             @id
+  ExamId        Int             @id @default(autoincrement())
   ExamName      String?         
   Duration      Int?
   CreatedAt     DateTime?       @default(now()) 
@@ -88,7 +88,7 @@ model Exams {
 }
 
 model QuestionImages {
-  ImageId      Int        @id
+  ImageId      Int        @id @default(autoincrement())
   QuestionId   Int?
   ImageUrl     String?    
   Caption      String?    
@@ -97,7 +97,7 @@ model QuestionImages {
 }
 
 model QuestionOptions {
-  OptionId      Int        @id
+  OptionId      Int        @id @default(autoincrement())
   QuestionId    Int?
   OptionLabel   String?    
   OptionContent String?    
@@ -106,7 +106,7 @@ model QuestionOptions {
 }
 
 model Questions {
-  QuestionId          Int                   @id
+  QuestionId          Int                   @id @default(autoincrement())
   TopicId             Int?
   DifficultyId        Int?
   TypeId              Int?
@@ -126,7 +126,7 @@ model Questions {
 }
 
 model QuestionSkills {
-  QuestionId Int
+  QuestionId Int @default(autoincrement())
   SkillId    Int
   Questions  Questions @relation(fields: [QuestionId], references: [QuestionId], onUpdate: NoAction)
   Skills     Skills    @relation(fields: [SkillId], references: [SkillId], onUpdate: NoAction)
@@ -135,13 +135,13 @@ model QuestionSkills {
 }
 
 model QuestionTypes {
-  TypeId    Int         @id
+  TypeId    Int         @id @default(autoincrement())
   TypeName  String?     
   Questions Questions[]
 }
 
 model ShortAnswers {
-  AnswerId      Int        @id
+  AnswerId      Int        @id @default(autoincrement())
   QuestionId    Int?
   CorrectAnswer String?    
   Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction)
@@ -157,7 +157,7 @@ model Skills {
 }
 
 model StudentAnswers {
-  Id                Int               @id
+  Id                Int               @id @default(autoincrement())
   AttemptQuestionId Int?
   SelectedOption    String?          
   ShortAnswer       String?           
