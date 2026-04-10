@@ -148,7 +148,7 @@ model ShortAnswers {
 }
 
 model Skills {
-  SkillId               Int                     @id
+  SkillId               Int                     @id @default(autoincrement())
   TopicId               Int?
   SkillName             String?                 
   AnalyticsSkillResults AnalyticsSkillResults[]
