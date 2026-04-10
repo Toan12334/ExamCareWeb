@@ -6,7 +6,7 @@ export default function StudentExamPage(){
     return(
         <div>
             <DataTable2 columns={studentExamColumns}/>
-            <h1 className="text-red-600">toan</h1>
+            
         </div>
     )
 }
