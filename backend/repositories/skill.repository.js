@@ -99,26 +99,28 @@ class SkillRepository {
   }
 
   async searchAndFilter({ keyword = "", topicId, page = 1, pageSize = 10 }) {
-    const offset = (page - 1) * pageSize
+    const safePage = Math.max(1, Number(page) || 1)
+    const safePageSize = Math.max(1, Number(pageSize) || 10)
+    const offset = (safePage - 1) * safePageSize
+  
     const conditions = []
-
-    if (keyword) {
+  
+    if (keyword && keyword.trim() !== "") {
       conditions.push(
-        Prisma.sql`s."SkillName" ILIKE ${`%${keyword}%`}`
+        Prisma.sql`s."SkillName" ILIKE ${`%${keyword.trim()}%`}`
       )
     }
-
-    if (topicId) {
+  
+    if (topicId && !Number.isNaN(Number(topicId))) {
       conditions.push(
         Prisma.sql`s."TopicId" = ${Number(topicId)}`
       )
     }
-
-    const whereClause =
-      conditions.length > 0
-        ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
-        : Prisma.sql``
-
+  
+    const whereClause = conditions.length
+      ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
+      : Prisma.empty
+  
     const data = await prisma.$queryRaw`
       SELECT 
         s."SkillId",
@@ -131,7 +133,7 @@ class SkillRepository {
         COUNT(q."QuestionId") AS "TotalQuestions",
         COALESCE(CAST(AVG(asr."Accuracy") AS DECIMAL(5,2)), 0) AS "AvgAccuracy"
       FROM "Skills" s
-      JOIN "Topics" t ON s."TopicId" = t."TopicId"
+      LEFT JOIN "Topics" t ON s."TopicId" = t."TopicId"
       LEFT JOIN "QuestionSkills" qs ON s."SkillId" = qs."SkillId"
       LEFT JOIN "Questions" q ON qs."QuestionId" = q."QuestionId"
       LEFT JOIN "DifficultyLevels" dl ON q."DifficultyId" = dl."DifficultyId"
@@ -139,18 +141,21 @@ class SkillRepository {
       ${whereClause}
       GROUP BY s."SkillId", s."SkillName", s."TopicId", t."TopicName"
       ORDER BY s."SkillId" DESC
-      LIMIT ${pageSize} OFFSET ${offset}
+      LIMIT ${safePageSize} OFFSET ${offset}
     `
-
+  
     const total = await prisma.$queryRaw`
       SELECT COUNT(*)::int AS "Total"
       FROM "Skills" s
       ${whereClause}
     `
-
+  
     return {
       data,
-      total: total[0]?.Total || 0
+      total: total[0]?.Total || 0,
+      page: safePage,
+      pageSize: safePageSize,
+      totalPages: Math.ceil((total[0]?.Total || 0) / safePageSize)
     }
   }
 }
