@@ -96,7 +96,7 @@ function DropdownExamManagement({ collapsed }) {
 
       {open && !collapsed && (
         <div className="ml-8 mt-1 space-y-1 text-sm text-gray-300">
-          <Link to="/student-exam" className="block p-2 hover:bg-[#3b4363] rounded">
+          <Link to={ROUTES.EXAM_MANAGE.STUDENT_EXAM} className="block p-2 hover:bg-[#3b4363] rounded">
             Quản lý thí sinh thi
           </Link>
           <Link to={ROUTES.EXAM_MANAGE.EXAM_PAPER} className="block p-2 hover:bg-[#3b4363] rounded">
