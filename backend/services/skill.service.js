@@ -4,24 +4,27 @@ import skillRepository from "../repositories/skill.repository.js"
 
 class SkillService {
   async getSkillsOverview({ page = 1, pageSize = 10 }) {
-
     page = Number(page) || 1
     pageSize = Number(pageSize) || 10
-
+  
     if (page < 1) page = 1
     if (pageSize < 1) pageSize = 10
-
+  
     const result = await skillRepository.getSkillsOverview({ page, pageSize })
-
+  
+    if (!result || !Array.isArray(result.data)) {
+      throw new Error("Invalid repository response in getSkillsOverview")
+    }
+  
     return {
       data: result.data.map(item => ({
         ...item,
         AvgAccuracy: Number(item.AvgAccuracy)
       })),
-      total: result.total,
+      total: Number(result.total) || 0,
       page,
       pageSize,
-      totalPages: Math.ceil(result.total / pageSize)
+      totalPages: Math.ceil((Number(result.total) || 0) / pageSize)
     }
   }
 
@@ -139,15 +142,19 @@ class SkillService {
       pageSize
     })
   
+    if (!result || !Array.isArray(result.data)) {
+      throw new Error("Invalid repository response in searchAndFilter")
+    }
+  
     return {
       data: result.data.map(item => ({
         ...item,
-        AvgAccuracy: Number(item.AvgAccuracy) 
+        AvgAccuracy: Number(item.AvgAccuracy)
       })),
-      total: result.total,
+      total: Number(result.total) || 0,
       page,
       pageSize,
-      totalPages: Math.ceil(result.total / pageSize)
+      totalPages: Math.ceil((Number(result.total) || 0) / pageSize)
     }
   }
 }
