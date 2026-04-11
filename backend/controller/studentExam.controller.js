@@ -1,5 +1,27 @@
 import studentExamService from "../services/studentExam.service.js";
 class StudentExamController {
+
+
+  async getStudentExamList(req, res) {
+    try {
+      const data = await studentExamService.getStudentExamList();
+
+      return res.status(200).json({
+        success: true,
+        message: "Lấy danh sách bài thi của học sinh thành công",
+        data
+      });
+    } catch (error) {
+      console.error("getStudentExamList error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message
+      });
+    }
+  }
+
     startExam = async (req, res) => {
       try {
         const { studentId, examId } = req.body;

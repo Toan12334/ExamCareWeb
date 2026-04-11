@@ -238,6 +238,31 @@ class StudentExamRepository {
       throw error;
     }
   }
+
+
+
+    async getStudentExamList () {
+    const data = await prisma.$queryRaw(
+      Prisma.sql`
+        SELECT
+          se."StudentExamId" AS "StudentExamId",
+          s."FullName"       AS "FullName",
+          e."ExamName"       AS "ExamName",
+          EXTRACT(EPOCH FROM (se."UpdatedAt" - se."CreatedAt"))::INT AS "TimeTotal",
+          se."Score"         AS "Score",
+          se."Status"        AS "Status"
+        FROM "StudentExams" se
+        INNER JOIN "Students" s
+          ON s."StudentId" = se."StudentId"
+        INNER JOIN "Exams" e
+          ON e."ExamId" = se."ExamId"
+        WHERE s."Is_deleted" = false
+        ORDER BY se."CreatedAt" DESC
+      `
+    );
+  
+    return data;
+  };
 }
 
 export default new StudentExamRepository();
