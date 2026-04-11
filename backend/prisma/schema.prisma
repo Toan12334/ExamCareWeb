@@ -187,12 +187,24 @@ model StudentExams {
   Students              Students?               @relation(fields: [StudentId], references: [StudentId], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model Classes {
+  ClassId    Int        @id @default(autoincrement())
+  ClassName  String
+  CreatedAt  DateTime?  @default(now())
+  is_deleted Boolean    @default(false)
+
+  Students   Students[]
+}
+
 model Students {
   StudentId    Int            @id @default(autoincrement())
-  FullName     String?        
-  Email        String?        
-  CreatedAt    DateTime?      @default(now()) 
+  ClassId      Int
+  FullName     String?
+  Email        String?
+  CreatedAt    DateTime?      @default(now())
   is_deleted   Boolean        @default(false)
+
+  Class        Classes        @relation(fields: [ClassId], references: [ClassId])
   StudentExams StudentExams[]
 }
 
