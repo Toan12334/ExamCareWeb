@@ -7,7 +7,7 @@ class StudentExamRepository {
         SELECT NOW() AS now
       `;
       const currentTime = currentTimeResult[0].now;
-  
+
       const examRows = await tx.$queryRaw`
         SELECT "Duration" AS duration
         FROM "Exams"
@@ -15,13 +15,13 @@ class StudentExamRepository {
           AND "IsActive" = true
         LIMIT 1
       `;
-  
+
       if (examRows.length === 0) {
         throw new Error("Bài thi không tồn tại hoặc đã bị khóa.");
       }
-  
+
       const duration = examRows[0].duration;
-  
+
       const existingRows = await tx.$queryRaw`
         SELECT
           "StudentExamId" AS "studentExamId",
@@ -34,12 +34,12 @@ class StudentExamRepository {
         LIMIT 1
         FOR UPDATE
       `;
-  
+
       let studentExamId;
-  
+
       if (existingRows.length > 0) {
         const existing = existingRows[0];
-  
+
         if (new Date(existing.expireAt) < new Date(currentTime)) {
           await tx.$executeRaw`
             UPDATE "StudentExams"
@@ -48,10 +48,10 @@ class StudentExamRepository {
               "UpdatedAt" = ${currentTime}
             WHERE "StudentExamId" = ${existing.studentExamId}
           `;
-  
+
           throw new Error("Phiên làm bài trước đó đã hết hạn.");
         }
-  
+
         studentExamId = existing.studentExamId;
       } else {
         const attemptRows = await tx.$queryRaw`
@@ -60,10 +60,10 @@ class StudentExamRepository {
           WHERE "StudentId" = ${studentId}
             AND "ExamId" = ${examId}
         `;
-  
+
         const nextAttemptNo = Number(attemptRows[0].nextAttemptNo);
         const expireAt = new Date(new Date(currentTime).getTime() + duration * 60 * 1000);
-  
+
         const insertRows = await tx.$queryRaw`
           INSERT INTO "StudentExams" (
             "StudentId",
@@ -85,10 +85,10 @@ class StudentExamRepository {
           )
           RETURNING "StudentExamId" AS "studentExamId"
         `;
-  
+
         studentExamId = insertRows[0].studentExamId;
       }
-  
+
       const result = await tx.$queryRaw`
         SELECT jsonb_build_object(
           'StudentExamId', se."StudentExamId",
@@ -167,11 +167,11 @@ class StudentExamRepository {
         WHERE se."StudentExamId" = ${studentExamId}
         LIMIT 1
       `;
-  
+
       if (!result || result.length === 0) {
         return null;
       }
-  
+
       return result[0].jsonresult || null;
     });
   }
@@ -329,6 +329,7 @@ class StudentExamRepository {
     const dataQuery = Prisma.sql`
       SELECT
         se."StudentExamId" AS "StudentExamId",
+         se."StudentId"     AS "StudentId",
         s."FullName"       AS "FullName",
         e."ExamName"       AS "ExamName",
         EXTRACT(EPOCH FROM (se."UpdatedAt" - se."CreatedAt"))::INT AS "TimeTotal",
