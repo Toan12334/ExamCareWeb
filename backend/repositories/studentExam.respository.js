@@ -329,7 +329,7 @@ class StudentExamRepository {
     const dataQuery = Prisma.sql`
       SELECT
         se."StudentExamId" AS "StudentExamId",
-         se."StudentId"     AS "StudentId",
+         s."StudentId"     AS "StudentId",
         s."FullName"       AS "FullName",
         e."ExamName"       AS "ExamName",
         EXTRACT(EPOCH FROM (se."UpdatedAt" - se."CreatedAt"))::INT AS "TimeTotal",

@@ -3,17 +3,17 @@ import { studentExamColumns } from "../constants/studentExam.columns.jsx"
 import DataTable2 from "../components/table/DataTable2"
 import useStudentExam from "../hooks/useStudentExam.js";
 import { buildStudentExamFilters } from "../constants/studentExam.columns.jsx";
+import Button from "../components/Button.jsx";
 export default function StudentExamPage() {
     const { studentExams, pagination, loading, error, handleSearch, handleFilter, handlePagination, handleSort, resetFilters, handleAIComment } = useStudentExam();
 
     const renderAIComment = (row) => {
         return (
-            <button
+            <Button
                 onClick={() => handleAIComment(row.StudentId, row.StudentExamId)}
                 className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
-            >
-                AI Comment
-            </button>
+            >Xem nhận xét AI
+            </Button>
         );
     };
 
