@@ -115,8 +115,8 @@ const useStudentExam = (initialParams = {}) => {
       setError(null);
   
       const response = await getStudentExamDetail(studentId, studentExamId);
-      console.log("AI Comment Response:", response.data);
-      return response.data;
+      console.log("AI Comment Response:", response);
+      return response;
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || "Đã có lỗi xảy ra");
     } finally {
