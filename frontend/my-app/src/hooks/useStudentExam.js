@@ -26,12 +26,12 @@ const useStudentExam = (initialParams = {}) => {
     ...defaultParams,
     ...initialParams
   });
-  const [loading, setLoading] = useState(false);
+  const [ailoading, setaiLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchStudentExams = useCallback(async (customParams) => {
     try {
-      setLoading(true);
+      setaiLoading(true);
       setError(null);
 
       const finalParams = customParams || params;
@@ -50,7 +50,7 @@ const useStudentExam = (initialParams = {}) => {
       setError(err?.response?.data?.message || err?.message || "Đã có lỗi xảy ra");
       setStudentExams([]);
     } finally {
-      setLoading(false);
+      setaiLoading(false);
     }
   }, [params]);
 
@@ -110,25 +110,24 @@ const useStudentExam = (initialParams = {}) => {
     fetchStudentExams();
   };
   const handleAIComment = async (studentId, studentExamId) => {
-
     try {
-      setLoading(true);
+      setaiLoading(true);
       setError(null);
-
+  
       const response = await getStudentExamDetail(studentId, studentExamId);
       console.log("AI Comment Response:", response.data);
       return response.data;
-
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || "Đã có lỗi xảy ra");
+    } finally {
+      setaiLoading(false);
     }
-
-  }
+  };
   return {
     studentExams,
     pagination,
     params,
-    loading,
+    ailoading,
     error,
     setParams,
     fetchStudentExams,
