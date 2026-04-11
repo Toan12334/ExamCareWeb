@@ -7,24 +7,24 @@ import Button from "../components/ui/Button.jsx";
 export default function StudentExamPage() {
     const { studentExams, pagination,ailoading, error, handleSearch, handleFilter, handlePagination, handleSort, resetFilters, handleAIComment } = useStudentExam();
 
-    const renderAIComment = (row) => {
-        console.log("render row", row);
+
+    const handleAI = async (studentId, studentExamId) => {
+        console.log("CLICKED:", studentId, studentExamId); // 👈 thêm dòng này
       
-        return (
-          <Button
-            type="button"
-            onClick={() => {
-              console.log("clicked row:", row);
-              console.log("StudentId:", row.StudentId);
-              console.log("StudentExamId:", row.StudentExamId);
-              handleAIComment(row.StudentId, row.StudentExamId);
-            }}
-            className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
-          >
-            Xem nhận xét AI
-          </Button>
-        );
+        const response = await handleAIComment(studentId, studentExamId);
+        console.log("AI Comment Response:", response);
+        return response;
       };
+    const renderAIComment = (row) => {
+        return (
+            <Button
+                onClick={() => handleAI(row.StudentId, row.StudentExamId)}
+                disabled={ailoading}
+                className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
+            >{ailoading ? "Đang tải..." : "Xem nhận xét AI"}
+            </Button>
+        );
+    };
 
     return (
         <div>
