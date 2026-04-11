@@ -56,7 +56,7 @@ const useStudentExam = (initialParams = {}) => {
 
   useEffect(() => {
     fetchStudentExams();
-  }, [fetchStudentExams]);
+  }, [params]);
 
   const handleSearch = (filterValues) => {
     const { rangeScore, ...rest } = filterValues;
