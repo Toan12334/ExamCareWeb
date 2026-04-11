@@ -13,7 +13,7 @@ model AnalyticsSkillResults {
   SkillId        Int?
   TotalQuestions Int?
   CorrectAnswers Int?
-  Accuracy       Decimal?      
+  Accuracy       Decimal?
   Skills         Skills?       @relation(fields: [SkillId], references: [SkillId], onDelete: NoAction, onUpdate: NoAction)
   StudentExams   StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -24,7 +24,7 @@ model AnalyticsTopicResults {
   TopicId        Int?
   TotalQuestions Int?
   CorrectAnswers Int?
-  Accuracy       Decimal?     
+  Accuracy       Decimal?
   StudentExams   StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction)
   Topics         Topics?       @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -32,9 +32,9 @@ model AnalyticsTopicResults {
 model AnswerLogs {
   LogId             Int               @id @default(autoincrement())
   AttemptQuestionId Int?
-  ActionType        String?           
-  SelectedOption    String?          
-  CreatedAt         DateTime?         @default(now()) 
+  ActionType        String?
+  SelectedOption    String?
+  CreatedAt         DateTime?         @default(now())
   AttemptQuestions  AttemptQuestions? @relation(fields: [AttemptQuestionId], references: [AttemptQuestionId], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -42,8 +42,8 @@ model AttemptQuestions {
   AttemptQuestionId  Int              @id @default(autoincrement())
   StudentExamId      Int?
   QuestionId         Int?
-  StartTime          DateTime?        
-  EndTime            DateTime?        
+  StartTime          DateTime?
+  EndTime            DateTime?
   TimeSpent          Int?
   AnswerChangedCount Int?
   IsCorrect          Boolean?
@@ -55,15 +55,15 @@ model AttemptQuestions {
 
 model DifficultyLevels {
   DifficultyId Int         @id @default(autoincrement())
-  LevelName    String?     
+  LevelName    String?
   Questions    Questions[]
 }
 
 model ExamBehaviorLogs {
   Id            Int           @id @default(autoincrement())
   StudentExamId Int?
-  EventType     String?       
-  EventTime     DateTime?     @default(now()) 
+  EventType     String?
+  EventTime     DateTime?     @default(now())
   StudentExams  StudentExams? @relation(fields: [StudentExamId], references: [StudentExamId], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -79,9 +79,9 @@ model ExamQuestions {
 
 model Exams {
   ExamId        Int             @id @default(autoincrement())
-  ExamName      String?         
+  ExamName      String?
   Duration      Int?
-  CreatedAt     DateTime?       @default(now()) 
+  CreatedAt     DateTime?       @default(now())
   IsActive      Boolean?
   ExamQuestions ExamQuestions[]
   StudentExams  StudentExams[]
@@ -90,8 +90,8 @@ model Exams {
 model QuestionImages {
   ImageId      Int        @id @default(autoincrement())
   QuestionId   Int?
-  ImageUrl     String?    
-  Caption      String?    
+  ImageUrl     String?
+  Caption      String?
   DisplayOrder Int?
   Questions    Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -99,8 +99,8 @@ model QuestionImages {
 model QuestionOptions {
   OptionId      Int        @id @default(autoincrement())
   QuestionId    Int?
-  OptionLabel   String?    
-  OptionContent String?    
+  OptionLabel   String?
+  OptionContent String?
   IsCorrect     Boolean?
   Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -110,9 +110,9 @@ model Questions {
   TopicId             Int?
   DifficultyId        Int?
   TypeId              Int?
-  QuestionContent     String?               
-  Explanation         String?               
-  CreatedAt           DateTime?             @default(now()) 
+  QuestionContent     String?
+  Explanation         String?
+  CreatedAt           DateTime?             @default(now())
   AttemptQuestions    AttemptQuestions[]
   ExamQuestions       ExamQuestions[]
   QuestionImages      QuestionImages[]
@@ -126,7 +126,7 @@ model Questions {
 }
 
 model QuestionSkills {
-  QuestionId Int @default(autoincrement())
+  QuestionId Int       @default(autoincrement())
   SkillId    Int
   Questions  Questions @relation(fields: [QuestionId], references: [QuestionId], onUpdate: NoAction)
   Skills     Skills    @relation(fields: [SkillId], references: [SkillId], onUpdate: NoAction)
@@ -136,21 +136,21 @@ model QuestionSkills {
 
 model QuestionTypes {
   TypeId    Int         @id @default(autoincrement())
-  TypeName  String?     
+  TypeName  String?
   Questions Questions[]
 }
 
 model ShortAnswers {
   AnswerId      Int        @id @default(autoincrement())
   QuestionId    Int?
-  CorrectAnswer String?    
+  CorrectAnswer String?
   Questions     Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Skills {
   SkillId               Int                     @id @default(autoincrement())
   TopicId               Int?
-  SkillName             String?                 
+  SkillName             String?
   AnalyticsSkillResults AnalyticsSkillResults[]
   QuestionSkills        QuestionSkills[]
   Topics                Topics?                 @relation(fields: [TopicId], references: [TopicId], onDelete: NoAction, onUpdate: NoAction)
@@ -159,8 +159,8 @@ model Skills {
 model StudentAnswers {
   Id                Int               @id @default(autoincrement())
   AttemptQuestionId Int?
-  SelectedOption    String?          
-  ShortAnswer       String?           
+  SelectedOption    String?
+  ShortAnswer       String?
   CreatedAt         DateTime?         @default(now())
   AttemptQuestions  AttemptQuestions? @relation(fields: [AttemptQuestionId], references: [AttemptQuestionId], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -169,13 +169,13 @@ model StudentExams {
   StudentExamId         Int                     @id @default(autoincrement())
   StudentId             Int?
   ExamId                Int?
-  Score                 Decimal?                 
-  Status                String                  @default("InProgress") 
+  Score                 Decimal?
+  Status                String                  @default("InProgress")
   ExpireAt              DateTime?
   SubmittedAt           DateTime?
   LastSavedAt           DateTime?
   IsAutoSubmitted       Boolean                 @default(false)
-  EntryCodeUsed         String?                 
+  EntryCodeUsed         String?
   AttemptNo             Int                     @default(1)
   CreatedAt             DateTime                @default(now())
   UpdatedAt             DateTime?
@@ -188,21 +188,21 @@ model StudentExams {
 }
 
 model Classes {
-  ClassId    Int        @id @default(autoincrement())
+  ClassId    Int       @id @default(autoincrement())
   ClassName  String
-  CreatedAt  DateTime?  @default(now())
-  is_deleted Boolean    @default(false)
+  CreatedAt  DateTime? @default(now())
+  is_deleted Boolean   @default(false)
 
-  Students   Students[]
+  Students Students[]
 }
 
 model Students {
-  StudentId    Int            @id @default(autoincrement())
-  ClassId      Int
-  FullName     String?
-  Email        String?
-  CreatedAt    DateTime?      @default(now())
-  is_deleted   Boolean        @default(false)
+  StudentId  Int       @id @default(autoincrement())
+  ClassId    Int?
+  FullName   String?
+  Email      String?
+  CreatedAt  DateTime? @default(now())
+  is_deleted Boolean   @default(false)
 
   Class        Classes?       @relation(fields: [ClassId], references: [ClassId])
   StudentExams StudentExams[]
@@ -210,7 +210,7 @@ model Students {
 
 model Topics {
   TopicId               Int                     @id @default(autoincrement())
-  TopicName             String?                 
+  TopicName             String?
   AnalyticsTopicResults AnalyticsTopicResults[]
   Questions             Questions[]
   Skills                Skills[]
@@ -219,8 +219,8 @@ model Topics {
 model TrueFalseStatements {
   StatementId      Int        @id @default(autoincrement())
   QuestionId       Int?
-  StatementLabel   String?    
-  StatementContent String?    
+  StatementLabel   String?
+  StatementContent String?
   IsCorrect        Boolean?
   Questions        Questions? @relation(fields: [QuestionId], references: [QuestionId], onDelete: NoAction, onUpdate: NoAction)
 }
