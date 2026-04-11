@@ -100,13 +100,10 @@ const useStudentExam = (initialParams = {}) => {
   };
 
   const resetFilters = () => {
-    const newParams = {
+    setParams({
       ...defaultParams,
       limit: params.limit
-    };
-  
-    setParams(newParams);
-    fetchStudentExams(newParams); // 👈 truyền params mới
+    });
   };
 
     const refetch = () => {
