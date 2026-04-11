@@ -4,12 +4,12 @@ class StudentExamController {
 
   async getStudentExamList(req, res) {
     try {
-      const data = await studentExamService.getStudentExamList();
+      const result = await studentExamService.getStudentExamList(req.query);
 
       return res.status(200).json({
         success: true,
-        message: "Lấy danh sách bài thi của học sinh thành công",
-        data
+        message: "Lấy danh sách bài thi thành công",
+        ...result
       });
     } catch (error) {
       console.error("getStudentExamList error:", error);

@@ -241,28 +241,139 @@ class StudentExamRepository {
 
 
 
-    async getStudentExamList () {
-    const data = await prisma.$queryRaw(
-      Prisma.sql`
-        SELECT
-          se."StudentExamId" AS "StudentExamId",
-          s."FullName"       AS "FullName",
-          e."ExamName"       AS "ExamName",
-          EXTRACT(EPOCH FROM (se."UpdatedAt" - se."CreatedAt"))::INT AS "TimeTotal",
-          se."Score"         AS "Score",
-          se."Status"        AS "Status"
-        FROM "StudentExams" se
-        INNER JOIN "Students" s
-          ON s."StudentId" = se."StudentId"
-        INNER JOIN "Exams" e
-          ON e."ExamId" = se."ExamId"
-        WHERE s."is_deleted" = false
-        ORDER BY se."CreatedAt" DESC
-      `
-    );
-  
-    return data;
-  };
+  async getStudentExamList(params = {}) {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      fullName = "",
+      examName = "",
+      status = "",
+      scoreMin,
+      scoreMax,
+      sortBy = "CreatedAt",
+      sortOrder = "desc"
+    } = params;
+
+    const pageNumber = Math.max(Number(page) || 1, 1);
+    const pageSize = Math.max(Number(limit) || 10, 1);
+    const offset = (pageNumber - 1) * pageSize;
+
+    const whereConditions = [
+      Prisma.sql`s."is_deleted" = false`
+    ];
+
+    if (search && String(search).trim() !== "") {
+      const keyword = `%${String(search).trim()}%`;
+      whereConditions.push(
+        Prisma.sql`(
+          s."FullName" ILIKE ${keyword}
+          OR e."ExamName" ILIKE ${keyword}
+          OR CAST(se."Status" AS TEXT) ILIKE ${keyword}
+          OR CAST(se."Score" AS TEXT) ILIKE ${keyword}
+        )`
+      );
+    }
+
+    if (fullName && String(fullName).trim() !== "") {
+      whereConditions.push(
+        Prisma.sql`s."FullName" ILIKE ${`%${String(fullName).trim()}%`}`
+      );
+    }
+
+    if (examName && String(examName).trim() !== "") {
+      whereConditions.push(
+        Prisma.sql`e."ExamName" ILIKE ${`%${String(examName).trim()}%`}`
+      );
+    }
+
+    if (status && String(status).trim() !== "") {
+      whereConditions.push(
+        Prisma.sql`CAST(se."Status" AS TEXT) ILIKE ${`%${String(status).trim()}%`}`
+      );
+    }
+
+    if (scoreMin !== undefined && scoreMin !== null && scoreMin !== "") {
+      whereConditions.push(
+        Prisma.sql`se."Score" >= ${Number(scoreMin)}`
+      );
+    }
+
+    if (scoreMax !== undefined && scoreMax !== null && scoreMax !== "") {
+      whereConditions.push(
+        Prisma.sql`se."Score" <= ${Number(scoreMax)}`
+      );
+    }
+
+    const allowedSortFields = {
+      StudentExamId: Prisma.sql`se."StudentExamId"`,
+      FullName: Prisma.sql`s."FullName"`,
+      ExamName: Prisma.sql`e."ExamName"`,
+      TimeTotal: Prisma.sql`(EXTRACT(EPOCH FROM (se."UpdatedAt" - se."CreatedAt"))::INT)`,
+      Score: Prisma.sql`se."Score"`,
+      Status: Prisma.sql`se."Status"`,
+      CreatedAt: Prisma.sql`se."CreatedAt"`,
+      UpdatedAt: Prisma.sql`se."UpdatedAt"`
+    };
+
+    const orderField =
+      allowedSortFields[sortBy] || allowedSortFields.CreatedAt;
+
+    const orderDirection =
+      String(sortOrder).toLowerCase() === "asc"
+        ? Prisma.sql`ASC`
+        : Prisma.sql`DESC`;
+
+    const whereClause = Prisma.sql`WHERE ${Prisma.join(whereConditions, " AND ")}`;
+
+    const dataQuery = Prisma.sql`
+      SELECT
+        se."StudentExamId" AS "StudentExamId",
+        s."FullName"       AS "FullName",
+        e."ExamName"       AS "ExamName",
+        EXTRACT(EPOCH FROM (se."UpdatedAt" - se."CreatedAt"))::INT AS "TimeTotal",
+        se."Score"         AS "Score",
+        se."Status"        AS "Status",
+        se."CreatedAt"     AS "CreatedAt",
+        se."UpdatedAt"     AS "UpdatedAt"
+      FROM "StudentExams" se
+      INNER JOIN "Students" s
+        ON s."StudentId" = se."StudentId"
+      INNER JOIN "Exams" e
+        ON e."ExamId" = se."ExamId"
+      ${whereClause}
+      ORDER BY ${orderField} ${orderDirection}
+      LIMIT ${pageSize}
+      OFFSET ${offset}
+    `;
+
+    const countQuery = Prisma.sql`
+      SELECT COUNT(*)::INT AS "total"
+      FROM "StudentExams" se
+      INNER JOIN "Students" s
+        ON s."StudentId" = se."StudentId"
+      INNER JOIN "Exams" e
+        ON e."ExamId" = se."ExamId"
+      ${whereClause}
+    `;
+
+    const [data, totalResult] = await Promise.all([
+      prisma.$queryRaw(dataQuery),
+      prisma.$queryRaw(countQuery)
+    ]);
+
+    const total = totalResult?.[0]?.total || 0;
+
+    return {
+      data,
+      pagination: {
+        page: pageNumber,
+        limit: pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize)
+      }
+    };
+  }
 }
 
 export default new StudentExamRepository();

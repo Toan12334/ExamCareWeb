@@ -8,13 +8,12 @@ import handle from "../utils/handle.js";
 
 class StudentExamService {
 
-
   formatTimeTotal(seconds) {
-    if (!seconds || seconds < 0) return "00:00";
+    const totalSeconds = Number(seconds) || 0;
 
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
 
     if (hours > 0) {
       return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
@@ -23,17 +22,22 @@ class StudentExamService {
     return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   }
 
-  async getStudentExamList() {
-    const data = await studentExamRepository.getStudentExamList();
+  async getStudentExamList(query) {
+    const result = await studentExamRepository.getStudentExamList(query);
 
-    return data.map((item) => ({
-      StudentExamId: item.StudentExamId,
-      FullName: item.FullName,
-      ExamName: item.ExamName,
-      TimeTotal: this.formatTimeTotal(item.TimeTotal),
-      Score: item.Score,
-      Status: item.Status
-    }));
+    return {
+      data: result.data.map((item) => ({
+        StudentExamId: item.StudentExamId,
+        FullName: item.FullName,
+        ExamName: item.ExamName,
+        TimeTotal: this.formatTimeTotal(item.TimeTotal),
+        Score: item.Score,
+        Status: item.Status,
+        CreatedAt: item.CreatedAt,
+        UpdatedAt: item.UpdatedAt
+      })),
+      pagination: result.pagination
+    };
   }
 
   async startExam(studentId, examId) {
