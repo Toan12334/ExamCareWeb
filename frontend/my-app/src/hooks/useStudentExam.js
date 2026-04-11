@@ -108,6 +108,11 @@ const useStudentExam = (initialParams = {}) => {
     setParams(newParams);
     fetchStudentExams(newParams); // 👈 truyền params mới
   };
+
+    const refetch = () => {
+        fetchStudentExams();
+    };
+
   return {
     studentExams,
     pagination,
