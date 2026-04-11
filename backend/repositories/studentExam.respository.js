@@ -256,7 +256,7 @@ class StudentExamRepository {
           ON s."StudentId" = se."StudentId"
         INNER JOIN "Exams" e
           ON e."ExamId" = se."ExamId"
-        WHERE s."Is_deleted" = false
+        WHERE s."is_deleted" = false
         ORDER BY se."CreatedAt" DESC
       `
     );
