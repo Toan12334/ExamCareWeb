@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getListStudentExam } from "../services/studentExam.service.js";
+import { getListStudentExam, getStudentExamDetail } from "../services/studentExam.service.js";
 
 const defaultParams = {
   page: 1,
@@ -60,14 +60,14 @@ const useStudentExam = (initialParams = {}) => {
 
   const handleSearch = (filterValues) => {
     const { rangeScore, ...rest } = filterValues;
-  
+
     let scoreMin = "";
     let scoreMax = "";
-  
+
     if (rangeScore) {
       [scoreMin, scoreMax] = rangeScore.split("-").map(Number);
     }
-  
+
     handleFilter({
       ...rest,
       scoreMin,
@@ -106,10 +106,24 @@ const useStudentExam = (initialParams = {}) => {
     });
   };
 
-    const refetch = () => {
-        fetchStudentExams();
-    };
+  const refetch = () => {
+    fetchStudentExams();
+  };
+  const handleAIComment = async (studentId, studentExamId) => {
 
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await getStudentExamDetail(studentId, studentExamId);
+      console.log("AI Comment Response:", response.data);
+      return response.data;
+
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || "Đã có lỗi xảy ra");
+    }
+
+  }
   return {
     studentExams,
     pagination,
@@ -123,7 +137,7 @@ const useStudentExam = (initialParams = {}) => {
     handlePagination,
     handleSort,
     resetFilters,
-    refetch
+    refetch, handleAIComment
   };
 };
 
