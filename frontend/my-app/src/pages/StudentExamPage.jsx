@@ -3,7 +3,7 @@ import { studentExamColumns } from "../constants/studentExam.columns.jsx"
 import DataTable2 from "../components/table/DataTable2"
 import useStudentExam from "../hooks/useStudentExam.js";
 import { buildStudentExamFilters } from "../constants/studentExam.columns.jsx";
-import Button from "../components/Button.jsx";
+import Button from "../components/ui/Button.jsx";
 export default function StudentExamPage() {
     const { studentExams, pagination, loading, error, handleSearch, handleFilter, handlePagination, handleSort, resetFilters, handleAIComment } = useStudentExam();
 
