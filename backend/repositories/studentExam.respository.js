@@ -1,5 +1,5 @@
 import prisma from "../config/db.js";
-
+import { Prisma } from "@prisma/client"
 class StudentExamRepository {
   async startExam(studentId, examId) {
     return await prisma.$transaction(async (tx) => {
