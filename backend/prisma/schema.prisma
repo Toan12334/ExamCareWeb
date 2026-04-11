@@ -204,7 +204,7 @@ model Students {
   CreatedAt    DateTime?      @default(now())
   is_deleted   Boolean        @default(false)
 
-  Class        Classes        @relation(fields: [ClassId], references: [ClassId])
+  Class        Classes?       @relation(fields: [ClassId], references: [ClassId])
   StudentExams StudentExams[]
 }
 
