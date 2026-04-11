@@ -10,7 +10,8 @@ export default function DataTable2({
   onSearch,
   onReset,
   onAdd,
-  renderAction // Thêm prop này để render cột thao tác
+  renderAction,
+  loading = false  
 }) {
   const [filterValues, setFilterValues] = useState({})
   const { page = 1, totalPages = 1, total = 0 } = pagination
@@ -97,9 +98,24 @@ export default function DataTable2({
           </thead>
 
           <tbody>
-            {data.length === 0 ? (
+            {loading ? (
               <tr>
-                <td colSpan={columns.length + (renderAction ? 2 : 1)} className="text-center py-8 text-gray-500">
+                <td
+                  colSpan={columns.length + (renderAction ? 2 : 1)}
+                  className="text-center py-10"
+                >
+                  <div className="flex justify-center items-center gap-2 text-gray-500">
+                    <div className="w-5 h-5 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                    Đang tải dữ liệu...
+                  </div>
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length + (renderAction ? 2 : 1)}
+                  className="text-center py-8 text-gray-500"
+                >
                   Không có dữ liệu
                 </td>
               </tr>
