@@ -8,7 +8,7 @@ export default function StudentExamPage(){
 
     return(
         <div>
-            <DataTable2 pagination={pagination} loading={loading} error={error} onSearch={handleSearch} onFilter={handleFilter} onPagination={handlePagination} onSort={handleSort} onResetFilters={resetFilters}
+            <DataTable2 pagination={pagination} loading={loading} error={error} onSearch={handleSearch} onFilter={handleFilter} onPagination={handlePagination} onSort={handleSort} onReset={resetFilters}
             columns={studentExamColumns} data={studentExams} title="Quản lý học sinh đang thi" filters={buildStudentExamFilters()}/>
         </div>
     )
