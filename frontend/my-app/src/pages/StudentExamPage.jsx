@@ -14,7 +14,7 @@ export default function StudentExamPage() {
         try {
           const response = await handleAIComment(studentId, studentExamId);
       
-          console.log("AI Comment Response:", response); // ❗ KHÔNG .data nữa
+          console.log("AI Comment Response:", response.data); // ❗ KHÔNG .data nữa
           return response;
       
         } catch (err) {
