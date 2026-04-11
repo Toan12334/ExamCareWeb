@@ -28,6 +28,7 @@ class StudentExamService {
     return {
       data: result.data.map((item) => ({
         StudentExamId: item.StudentExamId,
+        StudenId: item.StudentId,
         FullName: item.FullName,
         ExamName: item.ExamName,
         TimeTotal: this.formatTimeTotal(item.TimeTotal),
