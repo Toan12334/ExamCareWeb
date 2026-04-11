@@ -12,7 +12,7 @@ export default function StudentExamPage() {
         console.log("CLICKED:", studentId, studentExamId); // 👈 thêm dòng này
       
         const response = await handleAIComment(studentId, studentExamId);
-        console.log("AI Comment Response:", response);
+        console.log("AI Comment Response:", response.data);
         return response;
       };
     const renderAIComment = (row) => {
