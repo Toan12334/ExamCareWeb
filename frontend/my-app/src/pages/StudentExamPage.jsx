@@ -13,7 +13,7 @@ export default function StudentExamPage() {
                 onClick={() => handleAIComment(row.StudentId, row.StudentExamId)}
                 disabled={ailoading}
                 className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
-            >Xem nhận xét AI
+            >{ailoading ? "Đang tải..." : "Xem nhận xét AI"}
             </Button>
         );
     };
