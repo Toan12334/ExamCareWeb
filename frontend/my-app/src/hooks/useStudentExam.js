@@ -58,14 +58,22 @@ const useStudentExam = (initialParams = {}) => {
     fetchStudentExams();
   }, [fetchStudentExams]);
 
-  const handleSearch = (searchValue) => {
-    setParams((prev) => ({
-      ...prev,
-      page: 1,
-      search: searchValue
-    }));
+  const handleSearch = (filterValues) => {
+    const { rangeScore, ...rest } = filterValues;
+  
+    let scoreMin = "";
+    let scoreMax = "";
+  
+    if (rangeScore) {
+      [scoreMin, scoreMax] = rangeScore.split("-").map(Number);
+    }
+  
+    handleFilter({
+      ...rest,
+      scoreMin,
+      scoreMax
+    });
   };
-
   const handleFilter = (filters = {}) => {
     setParams((prev) => ({
       ...prev,
