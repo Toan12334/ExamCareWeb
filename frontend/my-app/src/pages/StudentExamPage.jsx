@@ -9,11 +9,21 @@ export default function StudentExamPage() {
 
 
     const handleAI = async (studentId, studentExamId) => {
-        console.log("CLICKED:", studentId, studentExamId); // 👈 thêm dòng này
+        console.log("CLICKED:", studentId, studentExamId);
       
-        const response = await handleAIComment(studentId, studentExamId);
-        console.log("AI Comment Response:", response.data);
-        return response;
+        try {
+          const response = await handleAIComment(studentId, studentExamId);
+      
+          console.log("AI Comment Response:", response); // ❗ KHÔNG .data nữa
+          return response;
+      
+        } catch (err) {
+          console.error("AI ERROR:", err);
+      
+          // có thể show toast hoặc alert
+          alert(err?.message || "Lỗi khi lấy AI comment");
+      
+        }
       };
     const renderAIComment = (row) => {
         return (
