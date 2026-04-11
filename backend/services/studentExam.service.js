@@ -5,7 +5,7 @@ import questionOptionRepository from "../repositories/questionOption.respository
 import trueFalseStatementRepository from "../repositories/trueFalseStatement.repository.js";
 import shortAnswerRepository from "../repositories/shortAnswer.repository.js";
 import handle from "../utils/handle.js";
-
+import openAIService from "./openAI.service.js";
 class StudentExamService {
 
   formatTimeTotal(seconds) {
@@ -279,6 +279,33 @@ class StudentExamService {
     }
 
     return mark;
+  }
+
+
+  async getStudentExamDetail(studentId, studentExamId) {
+    if (!studentId || isNaN(Number(studentId))) {
+      throw new Error("studentId không hợp lệ");
+    }
+
+    if (!studentExamId || isNaN(Number(studentExamId))) {
+      throw new Error("studentExamId không hợp lệ");
+    }
+
+    const result = await studentExamRepository.getStudentExamDetail(
+      Number(studentId),
+      Number(studentExamId)
+    );
+    
+
+    if (!result) {
+      throw new Error("Không tìm thấy thông tin bài thi của học sinh");
+    }
+    else{
+      const aiRespond = await openAIService.analyzeExamProcess({ examData: result });
+      return aiRespond;
+    }
+
+   
   }
 }
 

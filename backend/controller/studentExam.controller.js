@@ -1,5 +1,30 @@
 import studentExamService from "../services/studentExam.service.js";
 class StudentExamController {
+//detail bài thi của sinh viên
+  async getStudentExamDetailFromAI(req, res) {
+    try {
+      const { studentId, studentExamId } = req.params;
+
+      const data = await studentExamService.getStudentExamDetail(
+        studentId,
+        studentExamId
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Lấy chi tiết bài thi thành công",
+        data
+      });
+    } catch (error) {
+      console.error("getStudentExamDetail error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message
+      });
+    }
+  }
 
 
   async getStudentExamList(req, res) {
