@@ -100,16 +100,14 @@ const useStudentExam = (initialParams = {}) => {
   };
 
   const resetFilters = () => {
-    setParams({
+    const newParams = {
       ...defaultParams,
       limit: params.limit
-    });
+    };
+  
+    setParams(newParams);
+    fetchStudentExams(newParams); // 👈 truyền params mới
   };
-
-  const refetch = () => {
-    fetchStudentExams();
-  };
-
   return {
     studentExams,
     pagination,
