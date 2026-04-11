@@ -6,7 +6,8 @@ import { buildStudentExamFilters } from "../constants/studentExam.columns.jsx";
 import Button from "../components/ui/Button.jsx";
 export default function StudentExamPage() {
     const { studentExams, pagination,ailoading, error, handleSearch, handleFilter, handlePagination, handleSort, resetFilters, handleAIComment } = useStudentExam();
-
+ 
+    console.log("Student Exams:", studentExams);
 
     const handleAI = async (studentId, studentExamId) => {
         console.log("CLICKED:", studentId, studentExamId);
