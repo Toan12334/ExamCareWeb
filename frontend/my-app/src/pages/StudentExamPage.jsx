@@ -10,12 +10,14 @@ export default function StudentExamPage() {
 
     const handleAI = async (studentId, studentExamId) => {
         console.log("CLICKED:", studentId, studentExamId);
-      
+        const aiResponsetext="";
         try {
+          if(!aiResponsetext=="") {
+            alert("Đã có nhận xét AI, không thể lấy lại");
+           <Button variant="Xem nhận xét"/>
+          }
           const response = await handleAIComment(studentId, studentExamId);
-      
-          console.log("AI Comment Response:", response); 
-          return response;
+          return response.data;
       
         } catch (err) {
           console.error("AI ERROR:", err);
@@ -38,7 +40,8 @@ export default function StudentExamPage() {
 
     return (
         <div>
-            <DataTable2  renderAction={renderAIComment} pagination={pagination} error={error} onSearch={handleSearch} onFilter={handleFilter} onPagination={handlePagination} onSort={handleSort} onReset={resetFilters}
+            <DataTable2  renderAction={renderAIComment} pagination={pagination} error={error} onSearch={handleSearch} onFilter={handleFilter}
+             onPageChange={handlePagination} onSort={handleSort} onReset={resetFilters}
                 columns={studentExamColumns} data={studentExams} title="Quản lý học sinh đang thi" filters={buildStudentExamFilters()} />
         </div>
     )

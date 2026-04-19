@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
-import path from "path" // 1. Thêm import path
-import { fileURLToPath } from 'url' // 2. Thêm cái này để lấy đường dẫn
+import path from "path"
+import { fileURLToPath } from 'url'
 import studentRoutes from "./routes/student.routes.js"
 import topicRoutes from "./routes/topic.routes.js"
 import skillRoutes from "./routes/skill.routes.js"
@@ -10,42 +10,55 @@ import questionTypeRoutes from "./routes/questionType.route.js"
 import difficultyLevelRoutes from "./routes/difficultyLevel.route.js"
 import upLoadRoutes from "./routes/upload.route.js"
 import routeExam from "./routes/exam.route.js"
-import studentExamRoute from  "./routes/studentExam.route.js"
+import studentExamRoute from "./routes/studentExam.route.js"
 
-
-// 👇👇👇 THÊM FIX LỖI BIGINT Ở ĐÂY 👇👇👇
+// --- FIX LỖI BIGINT ---
 BigInt.prototype.toJSON = function () {
   return this.toString(); 
 };
-// 👆👆👆 ============================== 👆👆👆
 
-// 3. Khai báo __dirname (vì bạn dùng ES Modules - import)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express()
 
-app.use(cors()) 
+// 👇👇👇 CẤU HÌNH CORS MỚI 👇👇👇
+const allowedOrigins = [
+  'http://localhost:5173', // Cổng mặc định của Vite
+  'http://localhost:3000', // Cổng mặc định của React thuần
+  'https://web-cua-ban.onrender.com' // Thay bằng URL thật của bạn trên Render
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Cho phép các yêu cầu không có origin (như Postman) hoặc nằm trong danh sách trắng
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Chặn bởi CORS: Origin này không được phép!'));
+    }
+  },
+  credentials: true // Nếu bạn có dùng Cookie hay Token ở Header
+}));
+// 👆👆👆 ====================== 👆👆👆
+
 app.use(express.json())
 
-// --- PHẦN API GIỮ NGUYÊN ---
+// --- CÁC ROUTE API ---
 app.use("/api/students", studentRoutes)
 app.use("/api/topics", topicRoutes)
 app.use("/api/skills", skillRoutes)
-app.use("/api/questions",questionRoutes)
-app.use("/api/question-type",questionTypeRoutes)
-app.use("/api/difficulty-level",difficultyLevelRoutes)
-app.use("/api/upload",upLoadRoutes)
-app.use("/api/exams",routeExam)
-app.use("/api/student-exam",studentExamRoute)
+app.use("/api/questions", questionRoutes)
+app.use("/api/question-type", questionTypeRoutes)
+app.use("/api/difficulty-level", difficultyLevelRoutes)
+app.use("/api/upload", upLoadRoutes)
+app.use("/api/exams", routeExam)
+app.use("/api/student-exam", studentExamRoute)
 
-// --- PHẦN QUAN TRỌNG ĐỂ HIỆN REACT ---
-
-// 4. Phục vụ các file tĩnh từ thư mục public (nơi bạn đã dán code React)
+// --- PHỤC VỤ FRONTEND ---
 app.use(express.static(path.join(__dirname, "public")));
 
-// 5. XÓA HOẶC ĐỔI TÊN app.get("/") CŨ:
-// Thay vì res.send("API is running..."), hãy để nó phục vụ React
+// Route này giúp Render vẫn chạy được Frontend khi deploy
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
