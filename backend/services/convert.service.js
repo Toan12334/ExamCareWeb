@@ -7,6 +7,24 @@ import fs from "fs";
 const execFileAsync = promisify(execFile);
 
 class ConvertService {
+
+    saveMarkdownFile(studentExamId, content) {
+        const folderPath = "uploads/exams";
+
+        // tạo folder nếu chưa có
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        const fileName = `exam_${studentExamId}.md`;
+        const filePath = path.join(folderPath, fileName);
+
+        // ghi nội dung AI vào file
+        fs.writeFileSync(filePath, content, "utf-8");
+
+        return filePath;
+    }
+
     async mdToDocx(filePath, originalName = "output.md") {
         const baseName = path.parse(originalName).name;
         const outputPath = path.join(os.tmpdir(), `${baseName}-${Date.now()}.docx`);

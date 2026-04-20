@@ -1,6 +1,37 @@
 import prisma from "../config/db.js";
 import { Prisma } from "@prisma/client"
 class StudentExamRepository {
+  async updateFilePath(studentExamId, filePath) {
+    if (!studentExamId || isNaN(Number(studentExamId))) {
+      throw new Error("studentExamId không hợp lệ");
+    }
+
+    return await prisma.studentExams.update({
+      where: {
+        StudentExamId: Number(studentExamId),
+      },
+      data: {
+        FilePath: filePath
+      },
+    });
+  }
+
+  async findFilePathByStudentExam(studentExamId) {
+    if (!studentExamId || isNaN(Number(studentExamId))) {
+      throw new Error("studentExamId không hợp lệ");
+    }
+
+    const studentExam = await prisma.studentExams.findUnique({
+      where: {
+        StudentExamId: Number(studentExamId),
+      },
+      select: {
+        FilePath: true,
+      },
+    });
+
+    return studentExam?.FilePath || null;
+  }
   async startExam(studentId, examId) {
     return await prisma.$transaction(async (tx) => {
       const currentTimeResult = await tx.$queryRaw`

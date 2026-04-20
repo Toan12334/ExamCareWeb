@@ -6,7 +6,11 @@ import trueFalseStatementRepository from "../repositories/trueFalseStatement.rep
 import shortAnswerRepository from "../repositories/shortAnswer.repository.js";
 import handle from "../utils/handle.js";
 import openAIService from "./openAI.service.js";
+import convertService from "./convert.service.js";
+import uploadService from "./upload.service.js";
 class StudentExamService {
+
+
 
   formatTimeTotal(seconds) {
     const totalSeconds = Number(seconds) || 0;
@@ -287,26 +291,64 @@ class StudentExamService {
     if (!studentId || isNaN(Number(studentId))) {
       throw new Error("studentId không hợp lệ");
     }
-
+  
     if (!studentExamId || isNaN(Number(studentExamId))) {
       throw new Error("studentExamId không hợp lệ");
     }
-
+  
+    const studentIdNumber = Number(studentId);
+    const studentExamIdNumber = Number(studentExamId);
+  
+    const existingFilePath = await studentExamRepository.findFilePathByStudentExam(studentExamIdNumber);
+    if (existingFilePath) {
+      return existingFilePath;
+    }
+  
     const result = await studentExamRepository.getStudentExamDetail(
-      Number(studentId),
-      Number(studentExamId)
+      studentIdNumber,
+      studentExamIdNumber
     );
-    
-
+  
     if (!result) {
       throw new Error("Không tìm thấy thông tin bài thi của học sinh");
     }
-    else{
+  
+    let pathFileMD = null;
+    let filePathWord = null;
+  
+    try {
       const aiRespond = await openAIService.analyzeExamProcess({ examData: result });
-      return aiRespond;
+  
+      if (!aiRespond) {
+        throw new Error("AI không trả về nội dung đánh giá");
+      }
+  
+      pathFileMD = convertService.saveMarkdownFile(studentExamIdNumber, aiRespond);
+  
+      if (!pathFileMD) {
+        throw new Error("Không tạo được file Markdown");
+      }
+ 
+      const pathFileIcloud = await uploadService.convertMdAndUploadWord(
+        pathFileMD,
+        `exam_${studentExamIdNumber}.docx`
+      );
+  
+      if (!pathFileIcloud) {
+        throw new Error("Upload file Word lên cloud thất bại");
+      }
+  
+      await studentExamRepository.updateFilePath(studentExamIdNumber, pathFileIcloud);
+  
+      return pathFileIcloud;
+    } finally {
+      if (pathFileMD) {
+        convertService.safeDelete(pathFileMD);
+      }
+      if (filePathWord) {
+        convertService.safeDelete(filePathWord);
+      }
     }
-
-   
   }
 }
 

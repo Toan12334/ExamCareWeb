@@ -10,13 +10,9 @@ export default function StudentExamPage() {
 
     const handleAI = async (studentId, studentExamId) => {
         console.log("CLICKED:", studentId, studentExamId);
-        const aiResponsetext="";
-        try {
-          if(!aiResponsetext=="") {
-            alert("Đã có nhận xét AI, không thể lấy lại");
-           <Button variant="Xem nhận xét"/>
-          }
+        try {   
           const response = await handleAIComment(studentId, studentExamId);
+          console.log("AI RESPONSE:", response.data);
           return response.data;
       
         } catch (err) {
