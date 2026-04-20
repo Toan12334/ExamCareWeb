@@ -26,7 +26,7 @@ const app = express()
 const allowedOrigins = [
   'http://localhost:5173', // Cổng mặc định của Vite
   'http://localhost:3000', // Cổng mặc định của React thuần
-  'https://web-cua-ban.onrender.com' // Thay bằng URL thật của bạn trên Render
+  'https://examcareweb.onrender.com' // Thay bằng URL thật của bạn trên Render
 ];
 
 app.use(cors({
