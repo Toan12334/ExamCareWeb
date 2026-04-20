@@ -177,6 +177,7 @@ model StudentExams {
   IsAutoSubmitted       Boolean                 @default(false)
   EntryCodeUsed         String?
   AttemptNo             Int                     @default(1)
+  FilePath              String?
   CreatedAt             DateTime                @default(now())
   UpdatedAt             DateTime?
   AnalyticsSkillResults AnalyticsSkillResults[]

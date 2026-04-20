@@ -16,7 +16,7 @@ class UploadController {
   }
 
 
-  async uploadMutipleImg (req, res) {
+  async uploadMutipleImg(req, res) {
     try {
       let imageUrls = [];
       if (req.files && req.files.length > 0) {
@@ -38,12 +38,36 @@ class UploadController {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
-  
-      const fileUrl = await uploadService.uploadWord(req.file.path);
-  
+
+      const fileUrl = await uploadService.uploadWord(
+        req.file.path,
+        req.file.originalname
+      );
+
       return res.status(200).json({
         message: "Upload Word thành công",
         data: fileUrl
+      });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+
+  async convertMdAndUploadWord(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const fileUrl = await uploadService.convertMdAndUploadWord(
+        req.file.path,
+        req.file.originalname
+      );
+
+      return res.status(200).json({
+        message: "Convert Markdown và upload Word thành công",
+        data: fileUrl,
       });
     } catch (error) {
       return res.status(500).json({ error: error.message });
