@@ -31,6 +31,27 @@ class UploadController {
       res.status(500).json({ error: error.message });
     }
   };
+
+
+  async uploadWord(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+  
+      const fileUrl = await uploadService.uploadWord(req.file.path);
+  
+      return res.status(200).json({
+        message: "Upload Word thành công",
+        data: fileUrl
+      });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
 }
+
+
+
 
 export default new UploadController();

@@ -27,6 +27,22 @@ class cloudinaryService {
             throw new Error(`Multiple Upload Error: ${error.message}`);
         }
     }
+
+
+    async uploadWord(filePath) {
+        try {
+            const result = await cloudinary.uploader.upload(filePath, {
+                resource_type: "raw", // bắt buộc cho file Word
+                folder: "documents",
+            });
+    
+            fs.unlinkSync(filePath);
+    
+            return result.secure_url;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
 }
 
 export default new  cloudinaryService
