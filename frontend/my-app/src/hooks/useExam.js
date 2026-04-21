@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  deleteExam,
+  deleteExam,randomExamCode,
   updateExam,
   getExamDetailById,
   getAllExams,
@@ -271,6 +271,12 @@ const useExam = (initialParams = DEFAULT_PARAMS) => {
     await fetchExams(params);
   }, [fetchExams, params]);
 
+  const randomCode=async(id)=>{
+    const examcode=await randomExamCode(id);
+    console.log(examcode.data)
+    return examcode.data;
+  }
+    
   useEffect(() => {
     fetchExams(params);
   }, [fetchExams, params]);
@@ -285,7 +291,7 @@ const useExam = (initialParams = DEFAULT_PARAMS) => {
     submitLoading,
     error, filterData,
 
-    fetchExams,
+    fetchExams,randomCode,
     fetchExamById,
     createExam: handleCreateExam,
     updateExam: handleUpdateExam,

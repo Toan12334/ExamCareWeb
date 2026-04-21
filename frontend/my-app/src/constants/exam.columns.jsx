@@ -31,7 +31,7 @@ export const examColumn = (handleToggle,handleRandom) => [
     title:"Mã bài thi",
     render: (row) => (
       <Button className="bg-gray-700"
-      onClick={()=>handleRandom(row.ExamCode)} >
+      onClick={()=>handleRandom(row.ExamId)} >
         <Dices/>
       </Button>
     ),

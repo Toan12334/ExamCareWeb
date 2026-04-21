@@ -2,7 +2,7 @@
 import DataTable2 from "../../components/table/DataTable2";
 import { examColumn, buildExamFilters } from "../../constants/exam.columns.jsx";
 import useExam from "../../hooks/useExam";
-import Button from "../../components/ui/Button.jsx"
+import Button from "../../components/ui/Button.jsx";
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Pencil } from "lucide-react"
 import { useState } from "react";
@@ -10,7 +10,7 @@ import Toast from "../../utils/toast.js";
 
 export default function ExamManagePage() {
     const navigate = useNavigate();
-    const { exams,pagination,loading,error,valueFilter,changePage, changeLimit,updateExamStatus,
+    const { exams,pagination,loading,error,valueFilter,changePage, changeLimit,updateExamStatus,randomCode,
         changeSearch,createExam, updateExam,deleteExam,loadValueFilter,setValueFilter } = useExam();
 
     const handleSearch = (filterValues) => {
@@ -26,6 +26,15 @@ export default function ExamManagePage() {
         console.log("Open modal thêm mới exam");
         navigate('/exam-manage/create');
     };
+    const handleRandom=async(id)=>{
+        try {
+            const newCode = await randomCode(id);
+            Toast.success(`Mã đề thi mới: ${newCode}`);
+        } catch (err) {
+            console.error(err);
+            Toast.error("Đã xảy ra lỗi khi tạo mã đề thi mới");
+        }
+    }
 
     const handleDelete = async (row) => {
         const confirmed = window.confirm(
@@ -83,7 +92,7 @@ export default function ExamManagePage() {
             <DataTable2
                 title="Danh sách đề thi"
                 filters={typeof buildExamFilters === "function" ? buildExamFilters() : buildExamFilters}
-                columns={examColumn(handleToggle)}
+                columns={examColumn(handleToggle,handleRandom)}
                 data={exams}
                 pagination={pagination}
                 onPageChange={changePage}

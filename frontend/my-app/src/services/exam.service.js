@@ -46,3 +46,9 @@ export const updateExamStatus = async (id, isActive) => {
   });
   return result.data;
 };
+
+// RANDOM EXAM CODE
+export const randomExamCode = async (id) => {
+  const result = await axiosClient.patch(`/exams/${id}/random-code`);
+  return result.data;
+};
