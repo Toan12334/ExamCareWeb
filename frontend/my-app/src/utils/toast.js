@@ -19,6 +19,22 @@ const Toast = {
       success: messages.success || "Thành công",
       error: messages.error || "Thất bại",
     }),
+
+    examCode: (code, options = {}) =>
+      toast(
+        `Mã bài thi của bạn: ${code}`,
+        {
+          duration: 50000,
+          position: "top-center",
+          style: {
+            background: "#1e293b",
+            color: "#fff",
+            padding: "16px",
+            fontSize: "16px",
+          },
+          ...options,
+        }
+      ),
 };
 
 export default Toast;

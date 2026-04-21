@@ -81,6 +81,21 @@ class StudentRepository {
     })
   }
 
+  async findByEmail(email) {
+    try {
+      const student = await this.prisma.student.findUnique({
+        where: { Email: email },
+      });
+      return student;
+    } catch (error) {
+      console.error('Error in StudentRepository.findByEmail:', error.message);
+      throw error;
+    }
+  }
+
+
+
+
 
 }
 

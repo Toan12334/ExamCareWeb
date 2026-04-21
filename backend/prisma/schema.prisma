@@ -203,6 +203,7 @@ model Students {
   ClassId    Int?
   FullName   String?
   Email      String?
+  Password   String?
   CreatedAt  DateTime? @default(now())
   is_deleted Boolean   @default(false)
 

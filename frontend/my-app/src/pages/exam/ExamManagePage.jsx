@@ -29,7 +29,7 @@ export default function ExamManagePage() {
     const handleRandom=async(id)=>{
         try {
             const newCode = await randomCode(id);
-            Toast.success(`Mã đề thi mới: ${newCode}`);
+            Toast.examCode(newCode);
         } catch (err) {
             console.error(err);
             Toast.error("Đã xảy ra lỗi khi tạo mã đề thi mới");
