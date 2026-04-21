@@ -85,6 +85,7 @@ model Exams {
   IsActive      Boolean?
   ExamQuestions ExamQuestions[]
   StudentExams  StudentExams[]
+  ExamCode      String?
 }
 
 model QuestionImages {

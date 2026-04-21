@@ -13,6 +13,8 @@ export default function StudentExamPage() {
         try {   
           const response = await handleAIComment(studentId, studentExamId);
           console.log("AI RESPONSE:", response.data);
+          // eslint-disable-next-line react-hooks/immutability
+          window.location.href=response.data; 
           return response.data;
       
         } catch (err) {

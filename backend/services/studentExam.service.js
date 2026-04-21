@@ -299,19 +299,23 @@ class StudentExamService {
     const studentIdNumber = Number(studentId);
     const studentExamIdNumber = Number(studentExamId);
   
+
+    const result = await studentExamRepository.getStudentExamDetail(
+      studentIdNumber,
+      studentExamIdNumber
+    );
+    if (!result) {
+      throw new Error("Không tìm thấy thông tin bài thi của học sinh");
+    }
+    console.log("Student Exam Detail:", JSON.stringify(result));
     const existingFilePath = await studentExamRepository.findFilePathByStudentExam(studentExamIdNumber);
     if (existingFilePath) {
       return existingFilePath;
     }
   
-    const result = await studentExamRepository.getStudentExamDetail(
-      studentIdNumber,
-      studentExamIdNumber
-    );
+   
   
-    if (!result) {
-      throw new Error("Không tìm thấy thông tin bài thi của học sinh");
-    }
+    // Log chi tiết bài thi để kiểm tra dữ liệu trả về
   
     let pathFileMD = null;
     let filePathWord = null;
