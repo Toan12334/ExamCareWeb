@@ -192,6 +192,19 @@ class ExamRepository {
       },
     });
   }
+
+  async ranDomAndUpAndUtateExamCode(examId) {
+    const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    await prisma.exams.update({
+      where: {
+        ExamId: Number(examId),
+      },
+      data: {
+        ExamCode: randomCode,
+      },
+    });
+    return randomCode;
+  }
 }
 
 

@@ -8,4 +8,5 @@ router.get("/:id", examController.getExamDetailById);
 router.put("/:id", examController.updateExamWithQuestions);
 router.delete("/:id", examController.deleteExam);
 router.patch("/:id/status", examController.updateExamStatus);
+router.patch("/:id/random-code", examController.randomExamCode);
 export default router;

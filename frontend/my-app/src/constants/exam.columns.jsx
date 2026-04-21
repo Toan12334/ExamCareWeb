@@ -1,6 +1,8 @@
 import { Switch } from "antd";
+import { Dices  } from "lucide-react";
+import Button from "../components/ui/button";
 
-export const examColumn = (handleToggle) => [
+export const examColumn = (handleToggle,handleRandom) => [
   {
     key: "ExamId",
     title: "ID"
@@ -23,6 +25,17 @@ export const examColumn = (handleToggle) => [
       />
     ),
   },
+
+  {
+    key:"ExamCode",
+    title:"Mã bài thi",
+    render: (row) => (
+      <Button className="bg-gray-700"
+      onClick={()=>handleRandom(row.ExamCode)} >
+        <Dices/>
+      </Button>
+    ),
+  }
 ];
 
 

@@ -151,6 +151,22 @@ class ExamService {
       throw error;
     }
   }
+
+   async ranDomUpdateExamCode(examId) {
+    try {
+      const exam = await examRepository.getExamById(examId);
+  
+      if (!exam) {
+        throw new Error("Không tìm thấy bài thi");
+      }
+  
+      const updatedExam = await examRepository.ranDomAndUpAndUtateExamCode(examId);
+      return updatedExam;
+    } catch (error) {
+      console.error("Error in ExamService.ranDomUpdateExamCode:", error);
+      throw error;
+    }
+}
 }
 
 export default new ExamService();

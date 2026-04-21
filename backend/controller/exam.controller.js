@@ -157,6 +157,26 @@ class ExamController {
       });
     }
   }
+  async randomExamCode(req, res) {
+    try {
+      const { id } = req.params;
+      const updatedExam = await examService.ranDomUpdateExamCode(id);
+  
+      return res.status(200).json({
+        success: true,
+        message: "Cập nhật mã bài thi thành công",
+        data: updatedExam,
+      });
+    } catch (error) {
+      console.error("Error in ExamController.randomExamCode:", error);
+  
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Lỗi server",
+      });
+    }
+}
+
 }
 
 export default new ExamController();
