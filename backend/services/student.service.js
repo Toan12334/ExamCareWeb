@@ -42,31 +42,6 @@ class StudentService {
     return await studentRepository.search(keyword)
   }
 
-
-  async login(email, password) {
-    try {
-      // Tìm sinh viên theo email
-      const student = await studentRepository.findByEmail(email);
-
-      // Nếu không tìm thấy sinh viên, trả về null
-      if (!student) {
-        return null;
-      }
-
-      // Kiểm tra mật khẩu
-      const isPasswordValid = await bcrypt.compare(password, student.Password);
-      if (!isPasswordValid) {
-        return null;
-      }
-
-      // Trả về thông tin sinh viên nếu đăng nhập thành công
-      return student;
-    } catch (error) {
-      console.error('Error in StudentService.login:', error.message);
-      throw error;
-    }
-  }
-
 }
 
 

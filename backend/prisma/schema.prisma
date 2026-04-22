@@ -202,7 +202,7 @@ model Students {
   StudentId  Int       @id @default(autoincrement())
   ClassId    Int?
   FullName   String?
-  Email      String?
+  Email String? @unique
   Password   String?
   CreatedAt  DateTime? @default(now())
   is_deleted Boolean   @default(false)

@@ -89,7 +89,7 @@ class StudentRepository {
 
   async findByEmail(email) {
     try {
-      const student = await this.prisma.student.findUnique({
+      const student = await prisma.students.findUnique({
         where: { Email: email },
       });
       return student;
