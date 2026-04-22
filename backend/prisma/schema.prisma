@@ -85,7 +85,7 @@ model Exams {
   IsActive      Boolean?
   ExamQuestions ExamQuestions[]
   StudentExams  StudentExams[]
-  ExamCode      String?
+  ExamCode      String? @unique
 }
 
 model QuestionImages {
@@ -202,7 +202,7 @@ model Students {
   StudentId  Int       @id @default(autoincrement())
   ClassId    Int?
   FullName   String?
-  Email String? @unique
+  Email String?
   Password   String?
   CreatedAt  DateTime? @default(now())
   is_deleted Boolean   @default(false)

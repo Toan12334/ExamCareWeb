@@ -152,6 +152,25 @@ class ExamService {
     }
   }
 
+  async getExamByExamCode(examCode) {
+    try {
+      if (!examCode || String(examCode).trim() === "") {
+        throw new Error("Exam code is required");
+      }
+  
+      const exam = await examRepository.getExamByExamCode(String(examCode).trim());
+  
+      if (!exam) {
+        throw new Error("No exam found with the provided code");
+      }
+  
+      return exam;
+    } catch (error) {
+      console.error("Error in ExamService.getExamIdByExamCode:", error);
+      throw error;
+    }
+  }
+
    async ranDomUpdateExamCode(examId) {
     try {
       const exam = await examRepository.getExamById(examId);

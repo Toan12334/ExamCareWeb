@@ -89,12 +89,15 @@ class StudentRepository {
 
   async findByEmail(email) {
     try {
-      const student = await prisma.students.findUnique({
-        where: { Email: email },
+      const student = await prisma.students.findFirst({
+        where: {
+          Email: email,
+          is_deleted: false,
+        },
       });
       return student;
     } catch (error) {
-      console.error('Error in StudentRepository.findByEmail:', error.message);
+      console.error("Error in StudentRepository.findByEmail:", error.message);
       throw error;
     }
   }

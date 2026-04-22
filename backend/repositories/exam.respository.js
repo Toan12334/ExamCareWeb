@@ -193,6 +193,19 @@ class ExamRepository {
     });
   }
 
+  async getExamByExamCode(examCode) {
+    const exam = await prisma.exams.findUnique({
+      where: {
+        ExamCode: examCode,
+      },
+      select: {
+        ExamId: true,
+      },
+    });
+  
+    return exam ;
+  }
+
   async ranDomAndUpAndUtateExamCode(examId) {
     const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     await prisma.exams.update({
