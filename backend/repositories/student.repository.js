@@ -1,4 +1,5 @@
 import prisma from "../config/db.js"
+import bcrypt from "bcrypt"
 
 class StudentRepository {
 
@@ -20,10 +21,15 @@ class StudentRepository {
 
   // tạo student
   async create(data) {
+    if(data.Password) {
+      const salt = await bcrypt.genSalt(10)
+      data.Password = await bcrypt.hash(data.Password, salt)
+    }
     return await prisma.students.create({
       data: {
         FullName: data.FullName,
-        Email: data.Email
+        Email: data.Email,
+        Password: data.Password
       }
     })
   }

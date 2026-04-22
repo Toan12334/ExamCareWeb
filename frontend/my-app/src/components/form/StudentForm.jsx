@@ -78,6 +78,23 @@ export default function StudentForm({ student, onClose, onSubmit }) {
                             {errors.Email.message}
                         </p>
                     )}
+                    <input
+                        type="password"
+                        {...register("Password", {
+                            required: "Mật khẩu không được để trống",
+                            minLength: {
+                                value: 6,
+                                message: "Mật khẩu phải ít nhất 6 ký tự"
+                            }
+                        })}
+                        className="border p-2 w-full mb-1"
+                        placeholder="Mật khẩu"
+                    />
+                    {errors.Password && (
+                        <p className="text-red-500 text-sm mb-2">
+                            {errors.Password.message}
+                        </p>
+                    )}
 
                     <div className="flex justify-end gap-2 mt-3">
                         <button type="button" onClick={onClose}>
