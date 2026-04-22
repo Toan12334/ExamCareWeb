@@ -11,6 +11,7 @@ import difficultyLevelRoutes from "./routes/difficultyLevel.route.js"
 import upLoadRoutes from "./routes/upload.route.js"
 import routeExam from "./routes/exam.route.js"
 import studentExamRoute from "./routes/studentExam.route.js"
+import routeAuth from "./routes/auth.route.js"
 
 // --- FIX LỖI BIGINT ---
 BigInt.prototype.toJSON = function () {
@@ -54,6 +55,7 @@ app.use("/api/difficulty-level", difficultyLevelRoutes)
 app.use("/api/upload", upLoadRoutes)
 app.use("/api/exams", routeExam)
 app.use("/api/student-exam", studentExamRoute)
+app.use("/api/auth", routeAuth)
 
 // --- PHỤC VỤ FRONTEND ---
 app.use(express.static(path.join(__dirname, "public")));

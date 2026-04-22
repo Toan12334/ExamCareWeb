@@ -58,7 +58,5 @@ class AuthService {
    
 }
 
-const authService = new AuthService();
-authService.loginExam()
 
 export default new AuthService();
