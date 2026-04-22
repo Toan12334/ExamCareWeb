@@ -194,16 +194,14 @@ class ExamRepository {
   }
 
   async getExamByExamCode(examCode) {
-    const exam = await prisma.exams.findUnique({
+    const exam = await prisma.exams.findFirst({
       where: {
         ExamCode: examCode,
-      },
-      select: {
-        ExamId: true,
+        IsActive: true,
       },
     });
   
-    return exam ;
+    return exam;
   }
 
   async ranDomAndUpAndUtateExamCode(examId) {
