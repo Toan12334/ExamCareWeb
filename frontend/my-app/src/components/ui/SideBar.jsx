@@ -102,9 +102,6 @@ function DropdownExamManagement({ collapsed }) {
           <Link to={ROUTES.EXAM_MANAGE.EXAM_PAPER} className="block p-2 hover:bg-[#3b4363] rounded">
             Quản lý Đề thi
           </Link>
-          <Link to="/exam-candidates" className="block p-2 hover:bg-[#3b4363] rounded">
-            Quản lý Thí sinh
-          </Link>
         </div>
       )}
     </div>
