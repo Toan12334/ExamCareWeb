@@ -1,6 +1,6 @@
 # Sử dụng Node 20 slim
 FROM node:20-slim
-
+#ok 
 # Cài đặt Pandoc và OpenSSL (Prisma thường yêu cầu OpenSSL để hoạt động)
 RUN apt-get update && apt-get install -y pandoc openssl && rm -rf /var/lib/apt/lists/*
 
