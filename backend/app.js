@@ -28,7 +28,7 @@ const allowedOrigins = [
   'http://localhost:5173', // Cổng mặc định của Vite
   'http://localhost:3000', // Cổng mặc định của React thuần
   'https://examcareweb.onrender.com', // Thay bằng URL thật của bạn trên Render
-  'https://examcareweb-dockerdocker.onrender.com/', // Thay bằng URL thật của bạn trên Render (nếu có)
+  'https://examcareweb-dockerdocker.onrender.com', // Thay bằng URL thật của bạn trên Render (nếu có)
 ];
 
 app.use(cors({
