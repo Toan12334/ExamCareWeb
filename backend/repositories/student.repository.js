@@ -42,7 +42,8 @@ class StudentRepository {
       },
       data: {
         FullName: data.FullName,
-        Email: data.Email
+        Email: data.Email,
+        Password: data.Password
       }
     })
   }
