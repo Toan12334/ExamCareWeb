@@ -41,5 +41,9 @@ export const ROUTES = {
   },
   CUSTOMER: {
     LIST: `${ROUTE_PREFIX.CUSTOMER}`
+  },
+
+  USER_MANAGER:{
+    MANAGER: `${ROUTE_PREFIX.USER}/manager`,
   }
 }

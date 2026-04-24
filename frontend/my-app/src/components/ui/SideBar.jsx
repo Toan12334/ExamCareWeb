@@ -22,7 +22,7 @@ export default function Sidebar() {
       <div className="space-y-2 px-2">
 
         {/* Quản lý người dùng */}
-        <Link to="/" className="flex items-center gap-3 p-3 hover:bg-[#3b4363] rounded-lg">
+        <Link to={ROUTES.USER_MANAGER.MANAGER} className="flex items-center gap-3 p-3 hover:bg-[#3b4363] rounded-lg">
           <Users size={20} />
           {!collapsed && <span>Quản lý người dùng</span>}
         </Link>
