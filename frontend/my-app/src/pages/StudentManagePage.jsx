@@ -18,8 +18,10 @@ export function StudentManagePage() {
 
         if (editingStudent) {
             await updateStudentId(editingStudent.StudentId, data)
+            Toast.success("Cập nhật học sinh thành công")
         } else {
             await createStudent(data)
+            Toast.success("Thêm học sinh thành công")
         }
 
         setEditingStudent(null)
