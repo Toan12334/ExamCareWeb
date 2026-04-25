@@ -110,6 +110,7 @@ export default function useClasses(initialParams = {}) {
     const cleanParams = {
       page: 1,
       pageSize: params.pageSize,
+      search : "",
     };
     setParams(cleanParams);        // 🔥 reset state
     fetchClasses(cleanParams);     // 🔥 gọi API KHÔNG có filter
