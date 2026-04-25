@@ -12,6 +12,7 @@ import upLoadRoutes from "./routes/upload.route.js"
 import routeExam from "./routes/exam.route.js"
 import studentExamRoute from "./routes/studentExam.route.js"
 import routeAuth from "./routes/auth.route.js"
+import calssRoutes from "./routes/classes.route.js"
 
 // --- FIX LỖI BIGINT ---
 BigInt.prototype.toJSON = function () {
@@ -57,6 +58,7 @@ app.use("/api/upload", upLoadRoutes)
 app.use("/api/exams", routeExam)
 app.use("/api/student-exam", studentExamRoute)
 app.use("/api/auth", routeAuth)
+app.use("/api/classes", calssRoutes)
 
 // --- PHỤC VỤ FRONTEND ---
 app.use(express.static(path.join(__dirname, "public")));
