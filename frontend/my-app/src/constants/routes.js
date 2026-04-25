@@ -37,13 +37,17 @@ export const ROUTES = {
     EXAM_PAPER: `${ROUTE_PREFIX.EXAM}/exam-papers`,
     CREATE_EXAM: `${ROUTE_PREFIX.EXAM}/create`,
     EDIT_EXAM: `${ROUTE_PREFIX.EXAM}/edit/:id`,
-    STUDENT_EXAM:`${ROUTE_PREFIX.EXAM}/student-exam`
+    STUDENT_EXAM: `${ROUTE_PREFIX.EXAM}/student-exam`
   },
   CUSTOMER: {
     LIST: `${ROUTE_PREFIX.CUSTOMER}`
   },
 
-  USER_MANAGER:{
+  USER_MANAGER: {
     MANAGER: `${ROUTE_PREFIX.USER}/manager`,
+  },
+
+  CLASSES_MANAGER: {
+    MANAGER: `${ROUTE_PREFIX.CLASSES}/manager`,
   }
 }

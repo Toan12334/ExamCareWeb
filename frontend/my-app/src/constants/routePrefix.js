@@ -3,5 +3,6 @@ export const ROUTE_PREFIX = {
     EXAM: "/exam-manage",
     AUTH: "/auth",
     ADMIN:"/admin",
-    USER:"/user"
+    USER:"/user",
+    CLASSES:"/classes"
   }

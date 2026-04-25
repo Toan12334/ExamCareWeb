@@ -11,6 +11,7 @@ import QuestionForm from "../components/form/question_form/QuestionForm"
 import ExamBuilderRedesign from "../components/form/exam_question_form/ExamQuestionForm"
 import StudentExamPage from "../pages/StudentExamPage"
 import HomePage from "../pages/HomePage"
+import ClassesPage from "../pages/calsses/ClassesPage"
 export default function AppRouter() {
     return (
         <Routes>
@@ -27,6 +28,7 @@ export default function AppRouter() {
                 <Route path={ROUTES.EXAM_MANAGE.EDIT_EXAM} element={<ExamBuilderRedesign />} />
                 <Route path={ROUTES.EXAM_MANAGE.STUDENT_EXAM} element={<StudentExamPage />} />
                 <Route path={ROUTES.USER_MANAGER.MANAGER} element={<StudentManagePage />} />
+                <Route path={ROUTES.CLASSES_MANAGER.MANAGER} element={<ClassesPage />} />
 
             </Route>
         </Routes>
