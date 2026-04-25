@@ -128,7 +128,7 @@ function Header() {
           <a href="#results" className="hover:text-indigo-600">Results</a>
         </div>
 
-        <a href="#practice" className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition-all hover:-translate-y-0.5 hover:bg-emerald-500">
+        <a href="https://examcareweb-dockerdocker.onrender.com/user/manager" className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition-all hover:-translate-y-0.5 hover:bg-emerald-500">
           Start Practice
         </a>
       </nav>
