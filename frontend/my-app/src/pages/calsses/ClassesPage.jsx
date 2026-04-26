@@ -7,7 +7,7 @@ import UserSelector from "../../components/form/classes_form/ClassForm.jsx";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useStudents from "../../hooks/useStudent.js";
-import Toast from "../../components/ui/Toast.jsx";
+import Toast from "../../utils/toast.js";
 export default function ClassesPage() {
 
     const [openUserSelector, setOpenUserSelector] = useState(false);
