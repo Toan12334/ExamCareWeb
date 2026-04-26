@@ -3,6 +3,19 @@ import bcrypt from "bcrypt"
 
 class StudentRepository {
 
+  async findValidStudents(studentIds = [], studentEmails = []) {
+    return await prisma.students.findMany({
+      where: {
+        is_deleted: false,
+        OR: [
+          { StudentId: { in: studentIds } },
+          { Email: { in: studentEmails } }
+        ]
+      },
+      select: { StudentId: true }
+    });
+  }
+
   // lấy tất cả students
   async getAll() {
     return await prisma.students.findMany({

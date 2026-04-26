@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import classApi from "../services/calsses.service.js";
-
 export default function useClasses(initialParams = {}) {
   const [classes, setClasses] = useState([]);
 
@@ -65,8 +64,8 @@ export default function useClasses(initialParams = {}) {
   /**
    * CREATE
    */
-  const createClass = async (payload) => {
-    await classApi.create(payload);
+  const createClass = async () => {
+    await classApi.create();
     await fetchClasses();
   };
 

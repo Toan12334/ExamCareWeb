@@ -2,14 +2,7 @@ import prisma from "../config/db.js";
 import { Prisma } from "@prisma/client";
 
 class ClassRepository {
-  /**
-   * CREATE
-   */
-  async create(data) {
-    return prisma.classes.create({
-      data,
-    });
-  }
+
 
   /**
    * GET BY ID
@@ -69,39 +62,39 @@ class ClassRepository {
       sortOrder = "desc",
       includeStudents = false,
     } = params;
-  
+
     const skip = (page - 1) * pageSize;
     const take = Number(pageSize);
-  
+
     // WHERE
     const where = {
       AND: [
         typeof is_deleted === "boolean" ? { is_deleted } : {},
-  
+
         search
           ? {
-              ClassName: {
-                contains: search,
-                mode: "insensitive",
-              },
-            }
+            ClassName: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }
           : {},
-  
+
         fromDate || toDate
           ? {
-              CreatedAt: {
-                ...(fromDate && { gte: new Date(fromDate) }),
-                ...(toDate && { lte: new Date(toDate) }),
-              },
-            }
+            CreatedAt: {
+              ...(fromDate && { gte: new Date(fromDate) }),
+              ...(toDate && { lte: new Date(toDate) }),
+            },
+          }
           : {},
       ],
     };
-  
+
     const orderBy = {
       [sortBy]: sortOrder,
     };
-  
+
     const [data, total] = await Promise.all([
       prisma.classes.findMany({
         where,
@@ -114,7 +107,7 @@ class ClassRepository {
               where: { is_deleted: false },
             },
           }),
-  
+
           // 🔥 COUNT STUDENTS
           _count: {
             select: {
@@ -125,17 +118,17 @@ class ClassRepository {
           },
         },
       }),
-  
+
       prisma.classes.count({ where }),
     ]);
-  
+
     // 🔥 Format lại cho đẹp (optional)
     const formattedData = data.map((item) => ({
       ...item,
       studentCount: item._count.Students,
       _count: undefined, // nếu không muốn trả về _count
     }));
-  
+
     return {
       data: formattedData,
       pagination: {
@@ -145,6 +138,24 @@ class ClassRepository {
         totalPages: Math.ceil(total / pageSize),
       },
     };
+  }
+
+
+async createClassWithStudents(className, validStudentIds = []) {
+    // Format mảng ID thành chuẩn connect của Prisma: [{ StudentId: 1 }, { StudentId: 2 }]
+    const connectData = validStudentIds.map(id => ({ StudentId: id }));
+
+    return await prisma.classes.create({
+      data: {
+        ClassName: className,
+        Students: {
+          connect: connectData 
+        }
+      },
+      include: {
+        Students: true // Kéo theo thông tin học sinh trả về
+      }
+    });
   }
 }
 

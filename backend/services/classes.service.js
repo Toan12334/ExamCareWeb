@@ -1,18 +1,7 @@
 import classRepository from "../repositories/classes.repository.js";
-
+import studentRepository from "../repositories/student.repository.js";
 class ClassService {
-  /**
-   * CREATE CLASS
-   */
-  async createClass(payload) {
-    if (!payload?.ClassName) {
-      throw new Error("ClassName is required");
-    }
-
-    return classRepository.create({
-      ClassName: payload.ClassName,
-    });
-  }
+ 
 
   /**
    * GET CLASS BY ID
@@ -93,6 +82,36 @@ class ClassService {
     };
 
     return classRepository.getAllClasses(params);
+  }
+
+
+
+  async createClass(className, studentIdentifiers = []) {
+    // 1. Kiểm tra nghiệp vụ (Validation)
+    if (!className || className.trim() === "") {
+      throw new Error("Tên lớp học không được để trống.");
+    }
+
+    // 2. Logic phân loại đầu vào
+    const rawStudentIds = studentIdentifiers.filter(item => typeof item === 'number');
+    const studentEmails = studentIdentifiers.filter(item => typeof item === 'string');
+
+    let validStudentIds = [];
+
+    // 3. Nếu có dữ liệu học sinh truyền vào, gọi StudentRepo để lấy những học sinh TỒN TẠI & HỢP LỆ
+    if (studentIdentifiers.length > 0) {
+      const foundStudents = await studentRepository.findValidStudents(rawStudentIds, studentEmails);
+      
+      // Rút trích ra mảng chỉ chứa StudentId: [1, 5, 8]
+      validStudentIds = foundStudents.map(student => student.StudentId);
+    }
+
+    // 4. Gọi ClassRepo để thực hiện hành động GHI vào database
+    // (Nếu validStudentIds rỗng, lớp học vẫn được tạo nhưng chưa có thành viên)
+    const newClass = await classRepository.createClassWithStudents(className, validStudentIds);
+
+    // 5. Trả về kết quả đã xử lý xong xuôi
+    return newClass;
   }
 }
 

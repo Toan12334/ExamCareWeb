@@ -20,6 +20,32 @@ class ClassController {
     }
   }
 
+
+    async createClassHandler (req, res)  {
+  try {
+    const { className, studentIds } = req.body; 
+
+    // Controller chỉ gọi Service và nhận kết quả
+    const newClass = await classService.createClass(className, studentIds);
+
+    // Xử lý Response chuẩn JSON cho Client
+    return res.status(201).json({
+      success: true,
+      message: "Tạo lớp học thành công!",
+      data: newClass
+    });
+
+  } catch (error) {
+    console.error("Lỗi Controller (createClassHandler):", error.message);
+    
+    // Bắt lỗi từ Service (vd: "Tên lớp học không được để trống.")
+    return res.status(400).json({ 
+      success: false, 
+      message: error.message || "Đã xảy ra lỗi khi tạo lớp học." 
+    });
+  }
+
+}
   /**
    * GET ALL (🔥 flexible)
    * GET /api/classes

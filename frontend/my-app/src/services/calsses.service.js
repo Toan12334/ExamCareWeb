@@ -11,9 +11,18 @@ class ClassService {
     return res.data;
   }
 
-  async create(data) {
-    const res = await axiosClient.post("/classes", data);
-    return res.data;
+async create() {
+    try {
+      // Dùng this để lấy dữ liệu từ class/store hiện tại
+      const res = await axiosClient.post("/classes", { 
+        className: this.className, 
+        studentIds: this.studentIds 
+      });
+      return res.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   async update(id, data) {

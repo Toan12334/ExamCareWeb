@@ -3,7 +3,7 @@ import classController from "../controller/calsses.controller.js";
 
 const router = express.Router();
 
-router.post("/", classController.createClass);
+router.post("/", classController.createClassHandler);
 router.get("/", classController.getAllClasses);
 router.get("/:id", classController.getClassById);
 router.put("/:id", classController.updateClass);
