@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import classApi from "../services/calsses.service.js";
+import { data } from "react-router-dom";
 export default function useClasses(initialParams = {}) {
   const [classes, setClasses] = useState([]);
 
@@ -64,8 +65,8 @@ export default function useClasses(initialParams = {}) {
   /**
    * CREATE
    */
-  const createClass = async () => {
-    await classApi.create();
+  const createClass = async (data) => {
+    await classApi.create(data);
     await fetchClasses();
   };
 

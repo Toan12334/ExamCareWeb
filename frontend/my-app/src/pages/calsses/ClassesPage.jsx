@@ -10,9 +10,9 @@ import useStudents from "../../hooks/useStudent.js";
 export default function ClassesPage() {
 
     const [openUserSelector, setOpenUserSelector] = useState(false);
-    const handleSubmit = async() => {
-        await createClass();
-        
+    const handleSubmit = async(data) => {
+        await createClass(data);
+        setOpenUserSelector(false);
     }
    const handleOpenForm = (row) => {
         console.log("Open form for row:", row);
