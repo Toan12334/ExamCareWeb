@@ -7,12 +7,14 @@ import UserSelector from "../../components/form/classes_form/ClassForm.jsx";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useStudents from "../../hooks/useStudent.js";
+import Toast from "../../components/ui/Toast.jsx";
 export default function ClassesPage() {
 
     const [openUserSelector, setOpenUserSelector] = useState(false);
     const handleSubmit = async(data) => {
         await createClass(data);
         setOpenUserSelector(false);
+        Toast.success("Tạo lớp thành công");
     }
    const handleOpenForm = (row) => {
         console.log("Open form for row:", row);
