@@ -8,6 +8,6 @@ router.get("/", classController.getAllClasses);
 router.get("/:id", classController.getClassById);
 router.put("/:id", classController.updateClass);
 router.delete("/:id", classController.deleteClass);
-router.post("/", classController.createClassHandler);
+router.post("/", classController.createClass);
 
 export default router;
