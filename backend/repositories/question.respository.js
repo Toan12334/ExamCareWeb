@@ -1,103 +1,108 @@
 import prisma from "../config/db.js"
 import { Prisma } from "@prisma/client"
 class QuestionRepository {
-   async findAll({
-  keyword = null,
-  topicId = null,
-  difficultyId = null,
-  typeId = null,
-  skillId = null,
-  page = 1,
-  pageSize = 10
-}) {
-  // 1. Ép kiểu an toàn ngay từ đầu cho phân trang
-  const limit = Number(pageSize) || 10; 
-  const currentPage = Number(page) || 1;
-  const offset = (currentPage - 1) * limit;
-  
-  const conditions = [];
+  async findAll({
+    keyword = null,
+    topicId = null,
+    difficultyId = null,
+    typeId = null,
+    skillId = null,
+    page = 1,
+    pageSize = 10
+  }) {
+    // 1. Ép kiểu an toàn ngay từ đầu cho phân trang
+    const limit = Number(pageSize) || 10; 
+    const currentPage = Number(page) || 1;
+    const offset = (currentPage - 1) * limit;
+    
+    const conditions = [];
 
-  // 2. Ép kiểu và kiểm tra điều kiện khắt khe hơn
-  if (keyword) {
-    conditions.push(Prisma.sql`q."QuestionContent" ILIKE ${`%${keyword}%`}`);
+    // 2. Ép kiểu và kiểm tra điều kiện khắt khe hơn
+    if (keyword) {
+      conditions.push(Prisma.sql`q."QuestionContent" ILIKE ${`%${keyword}%`}`);
+    }
+
+    if (topicId && !isNaN(Number(topicId))) {
+      conditions.push(Prisma.sql`q."TopicId" = ${Number(topicId)}`);
+    }
+
+    if (difficultyId && !isNaN(Number(difficultyId))) {
+      conditions.push(Prisma.sql`q."DifficultyId" = ${Number(difficultyId)}`);
+    }
+
+    if (typeId && !isNaN(Number(typeId))) {
+      conditions.push(Prisma.sql`q."TypeId" = ${Number(typeId)}`);
+    }
+
+    if (skillId && !isNaN(Number(skillId))) {
+      conditions.push(Prisma.sql`qs."SkillId" = ${Number(skillId)}`);
+    }
+
+    // 3. Sử dụng Prisma.empty (chuẩn Prisma) thay vì Prisma.sql`` khi không có điều kiện
+    const whereClause =
+      conditions.length > 0
+        ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
+        : Prisma.empty;
+
+    const data = await prisma.$queryRaw`
+      SELECT 
+        q."QuestionId",
+        q."QuestionContent" AS "QuestionPreview",
+        t."TopicName",
+        qt."TypeName",
+        d."LevelName" AS "Difficulty",
+        COALESCE(STRING_AGG(DISTINCT s."SkillName", ', '), '') AS "Skills",
+        q."CreatedAt",
+        
+        -- ✅ ĐÃ SỬA: Ép kiểu COUNT trả về Integer thay vì BigInt
+        COUNT(DISTINCT aq."AttemptQuestionId")::int AS "TotalAttempts",
+        
+        -- ✅ ĐÃ SỬA: Ép kiểu DECIMAL trả về Float để JSON.stringify có thể đọc được
+        CAST(
+          CASE 
+            WHEN COUNT(DISTINCT aq."AttemptQuestionId") = 0 THEN 0
+            ELSE 
+              SUM(CASE WHEN aq."IsCorrect" = true THEN 1 ELSE 0 END) * 100.0
+              / COUNT(DISTINCT aq."AttemptQuestionId")
+          END
+        AS DECIMAL(5,2))::float AS "Accuracy"
+        
+      FROM "Questions" q
+      LEFT JOIN "Topics" t ON q."TopicId" = t."TopicId"
+      LEFT JOIN "QuestionTypes" qt ON q."TypeId" = qt."TypeId"
+      LEFT JOIN "DifficultyLevels" d ON q."DifficultyId" = d."DifficultyId"
+      LEFT JOIN "QuestionSkills" qs ON q."QuestionId" = qs."QuestionId"
+      LEFT JOIN "Skills" s ON qs."SkillId" = s."SkillId"
+      LEFT JOIN "AttemptQuestions" aq ON q."QuestionId" = aq."QuestionId"
+      ${whereClause}
+      GROUP BY 
+        q."QuestionId",
+        q."QuestionContent",
+        t."TopicName",
+        qt."TypeName",
+        d."LevelName",
+        q."CreatedAt"
+      ORDER BY q."CreatedAt" DESC
+      LIMIT ${limit} OFFSET ${offset}  -- => Đã được ép kiểu số tự nhiên an toàn
+    `;
+
+    const totalResult = await prisma.$queryRaw`
+      SELECT COUNT(DISTINCT q."QuestionId")::int AS "total"
+      FROM "Questions" q
+      LEFT JOIN "QuestionSkills" qs ON q."QuestionId" = qs."QuestionId"
+      ${whereClause}
+    `;
+
+    const total = totalResult[0]?.total || 0;
+
+    return {
+      data,
+      total,
+      page: currentPage,
+      pageSize: limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
-
-  if (topicId && !isNaN(Number(topicId))) {
-    conditions.push(Prisma.sql`q."TopicId" = ${Number(topicId)}`);
-  }
-
-  if (difficultyId && !isNaN(Number(difficultyId))) {
-    conditions.push(Prisma.sql`q."DifficultyId" = ${Number(difficultyId)}`);
-  }
-
-  if (typeId && !isNaN(Number(typeId))) {
-    conditions.push(Prisma.sql`q."TypeId" = ${Number(typeId)}`);
-  }
-
-  if (skillId && !isNaN(Number(skillId))) {
-    conditions.push(Prisma.sql`qs."SkillId" = ${Number(skillId)}`);
-  }
-
-  // 3. Sử dụng Prisma.empty (chuẩn Prisma) thay vì Prisma.sql`` khi không có điều kiện
-  const whereClause =
-    conditions.length > 0
-      ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
-      : Prisma.empty;
-
-  const data = await prisma.$queryRaw`
-    SELECT 
-      q."QuestionId",
-      q."QuestionContent" AS "QuestionPreview",
-      t."TopicName",
-      qt."TypeName",
-      d."LevelName" AS "Difficulty",
-      COALESCE(STRING_AGG(DISTINCT s."SkillName", ', '), '') AS "Skills",
-      q."CreatedAt",
-      COUNT(DISTINCT aq."AttemptQuestionId") AS "TotalAttempts",
-      CAST(
-        CASE 
-          WHEN COUNT(DISTINCT aq."AttemptQuestionId") = 0 THEN 0
-          ELSE 
-            SUM(CASE WHEN aq."IsCorrect" = true THEN 1 ELSE 0 END) * 100.0
-            / COUNT(DISTINCT aq."AttemptQuestionId")
-        END
-      AS DECIMAL(5,2)) AS "Accuracy"
-    FROM "Questions" q
-    LEFT JOIN "Topics" t ON q."TopicId" = t."TopicId"
-    LEFT JOIN "QuestionTypes" qt ON q."TypeId" = qt."TypeId"
-    LEFT JOIN "DifficultyLevels" d ON q."DifficultyId" = d."DifficultyId"
-    LEFT JOIN "QuestionSkills" qs ON q."QuestionId" = qs."QuestionId"
-    LEFT JOIN "Skills" s ON qs."SkillId" = s."SkillId"
-    LEFT JOIN "AttemptQuestions" aq ON q."QuestionId" = aq."QuestionId"
-    ${whereClause}
-    GROUP BY 
-      q."QuestionId",
-      q."QuestionContent",
-      t."TopicName",
-      qt."TypeName",
-      d."LevelName",
-      q."CreatedAt"
-    ORDER BY q."CreatedAt" DESC
-    LIMIT ${limit} OFFSET ${offset}  -- => Đã được ép kiểu số tự nhiên an toàn
-  `;
-
-  const totalResult = await prisma.$queryRaw`
-    SELECT COUNT(DISTINCT q."QuestionId")::int AS "total"
-    FROM "Questions" q
-    LEFT JOIN "QuestionSkills" qs ON q."QuestionId" = qs."QuestionId"
-    ${whereClause}
-  `;
-
-  const total = totalResult[0]?.total || 0;
-
-  return {
-    data,
-    total,
-    page: currentPage,
-    pageSize: limit,
-    totalPages: Math.ceil(total / limit)
-  };
-}
 
 
     // QuestionRepository.js
