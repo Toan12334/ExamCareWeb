@@ -10,16 +10,16 @@ class QuestionRepository {
     page = 1,
     pageSize = 10
   }) {
-    // 1. Ép kiểu an toàn ngay từ đầu cho phân trang
-    const limit = Number(pageSize) || 10; 
+    // 1. Ép kiểu phân trang an toàn
+    const limit = Number(pageSize) || 10;
     const currentPage = Number(page) || 1;
     const offset = (currentPage - 1) * limit;
-    
+
     const conditions = [];
 
-    // 2. Ép kiểu và kiểm tra điều kiện khắt khe hơn
-    if (keyword) {
-      conditions.push(Prisma.sql`q."QuestionContent" ILIKE ${`%${keyword}%`}`);
+    // 2. Ép kiểu và kiểm tra điều kiện (Thêm check kiểu string cho keyword để chống lỗi Object)
+    if (keyword && typeof keyword === 'string' && keyword.trim() !== '') {
+      conditions.push(Prisma.sql`q."QuestionContent" ILIKE ${'%' + keyword.trim() + '%'}`);
     }
 
     if (topicId && !isNaN(Number(topicId))) {
@@ -38,12 +38,14 @@ class QuestionRepository {
       conditions.push(Prisma.sql`qs."SkillId" = ${Number(skillId)}`);
     }
 
-    // 3. Sử dụng Prisma.empty (chuẩn Prisma) thay vì Prisma.sql`` khi không có điều kiện
+    // 3. Nối điều kiện chuẩn Prisma (Dùng ' AND ' thay vì Prisma.sql)
     const whereClause =
       conditions.length > 0
-        ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`
+        ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
         : Prisma.empty;
 
+    // 4. Truy vấn lấy dữ liệu (Đã fix lỗi BigInt với ::int và ::float)
+    // Chú ý: Dùng dấu backtick (`) ngay sát $queryRaw, tuyệt đối không có ngoặc đơn ()
     const data = await prisma.$queryRaw`
       SELECT 
         q."QuestionId",
@@ -53,11 +55,7 @@ class QuestionRepository {
         d."LevelName" AS "Difficulty",
         COALESCE(STRING_AGG(DISTINCT s."SkillName", ', '), '') AS "Skills",
         q."CreatedAt",
-        
-        -- ✅ ĐÃ SỬA: Ép kiểu COUNT trả về Integer thay vì BigInt
         COUNT(DISTINCT aq."AttemptQuestionId")::int AS "TotalAttempts",
-        
-        -- ✅ ĐÃ SỬA: Ép kiểu DECIMAL trả về Float để JSON.stringify có thể đọc được
         CAST(
           CASE 
             WHEN COUNT(DISTINCT aq."AttemptQuestionId") = 0 THEN 0
@@ -66,7 +64,6 @@ class QuestionRepository {
               / COUNT(DISTINCT aq."AttemptQuestionId")
           END
         AS DECIMAL(5,2))::float AS "Accuracy"
-        
       FROM "Questions" q
       LEFT JOIN "Topics" t ON q."TopicId" = t."TopicId"
       LEFT JOIN "QuestionTypes" qt ON q."TypeId" = qt."TypeId"
@@ -83,9 +80,10 @@ class QuestionRepository {
         d."LevelName",
         q."CreatedAt"
       ORDER BY q."CreatedAt" DESC
-      LIMIT ${limit} OFFSET ${offset}  -- => Đã được ép kiểu số tự nhiên an toàn
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
+    // 5. Truy vấn đếm tổng số bản ghi (Dùng ::int để ép kiểu an toàn)
     const totalResult = await prisma.$queryRaw`
       SELECT COUNT(DISTINCT q."QuestionId")::int AS "total"
       FROM "Questions" q
@@ -93,7 +91,8 @@ class QuestionRepository {
       ${whereClause}
     `;
 
-    const total = totalResult[0]?.total || 0;
+    // 6. Xử lý kết quả trả về
+    const total = totalResult.length > 0 ? totalResult[0].total : 0;
 
     return {
       data,
