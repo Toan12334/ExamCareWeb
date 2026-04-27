@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,13 +13,6 @@ import { getAllDifficultLevel } from "../services/difficultyLevel.service.js";
 import { getAllSkill } from "../services/skill.service.js";
 import useTopic from "./useTopic.js";
 import { ROUTES } from "../constants/routes.js";
-
-// Hàm tiện ích: Xóa các key có giá trị null, undefined hoặc chuỗi rỗng "" để không gửi xuống API
-const cleanParams = (params) => {
-  return Object.fromEntries(
-    Object.entries(params).filter(([_, v]) => v !== null && v !== undefined && v !== "")
-  );
-};
 
 export default function useQuestion(options = {}) {
   const {
@@ -46,16 +38,16 @@ export default function useQuestion(options = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Nhận tham số trực tiếp thay vì phụ thuộc hoàn toàn vào state để tránh Stale State
-  const fetchQuestions = async (currentFilters = filterValues, currentPage = pagination.page) => {
+  const fetchQuestions = async (params = {}) => {
     try {
       setLoading(true);
 
-      const finalParams = cleanParams({
-        ...currentFilters,
-        page: currentPage,
+      const finalParams = {
+        page: pagination.page,
         pageSize: pagination.pageSize,
-      });
+        ...filterValues,
+        ...params
+      };
 
       const result = await getQuestions(finalParams);
 
@@ -77,7 +69,6 @@ export default function useQuestion(options = {}) {
   useEffect(() => {
     fetchQuestions();
     loadFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadFilters = async () => {
@@ -131,18 +122,18 @@ export default function useQuestion(options = {}) {
     setFilters(buildQuestionFilters(topicOptions, typeOptions, difficultOptions, skillOptions));
   };
 
-  const syncUrl = (params, page) => {
+  const syncUrl = (params) => {
     if (!enableUrlSync) return;
 
     if (customSyncUrl) {
-      customSyncUrl({ ...params, page });
+      customSyncUrl(params);
       return;
     }
 
     navigate(
       ROUTES.QUESTION_BANK.QUESTIONS_WITH_QUERY({
-        page: page || 1,
-        limit: pagination.pageSize || 10,
+        page: params.page || 1,
+        limit: params.pageSize || 10,
         search: params.keyword || "",
         topicId: params.TopicId || "",
         skillId: params.SkillId || "",
@@ -153,32 +144,51 @@ export default function useQuestion(options = {}) {
   };
 
   const onSearch = async (params = {}) => {
-    let nextFilterValues = {
+    const nextFilterValues = {
       ...filterValues,
       ...params,
     };
 
-    // Nếu người dùng thay đổi Topic, tự động xóa Skill để tránh lỗi xung đột bộ lọc
-    if ('TopicId' in params && params.TopicId !== filterValues.TopicId) {
-      nextFilterValues.SkillId = ""; 
-    }
+    const nextParams = {
+      ...nextFilterValues,
+      page: 1,
+      pageSize: pagination.pageSize,
+    };
 
     setFilterValues(nextFilterValues);
-    syncUrl(nextFilterValues, 1);
-    await fetchQuestions(nextFilterValues, 1);
+    syncUrl(nextParams);
+    await fetchQuestions(nextParams);
   };
 
   const onPageChange = async (page) => {
-    syncUrl(filterValues, page);
-    await fetchQuestions(filterValues, page);
+    const nextParams = {
+      ...filterValues,
+      page,
+      pageSize: pagination.pageSize,
+    };
+
+    syncUrl(nextParams);
+    await fetchQuestions(nextParams);
   };
 
   const onReset = async () => {
-    const emptyFilters = {}; // Dùng object rỗng, hàm cleanParams sẽ lo phần còn lại
+    const emptyFilters = {
+      keyword: "",
+      TopicId: "",
+      SkillId: "",
+      DifficultyId: "",
+      TypeId: "",
+    };
+
+    const nextParams = {
+      ...emptyFilters,
+      page: 1,
+      pageSize: pagination.pageSize,
+    };
 
     setFilterValues(emptyFilters);
-    syncUrl(emptyFilters, 1);
-    await fetchQuestions(emptyFilters, 1);
+    syncUrl(nextParams);
+    await fetchQuestions(nextParams);
   };
 
   const createQuestion = async (body) => {
