@@ -410,120 +410,139 @@ class StudentExamRepository {
 
 
   /// detail exam 
-  async getStudentExamDetail(studentId, studentExamId) {
-    const result = await prisma.$queryRaw`
-      SELECT jsonb_build_object(
-        'StudentId', s."StudentId",
-        'FullName', s."FullName",
-        'Email', s."Email",
-        'ClassName', c."ClassName",
-        'ExamDetails', (
-          SELECT jsonb_build_object(
-            'StudentExamId', se."StudentExamId",
-            'ExamName', e."ExamName",
-            'AttemptNo', se."AttemptNo",
-            'Score', se."Score",
-            'Status', se."Status",
-            'IsAutoSubmitted', se."IsAutoSubmitted",
-            'StartTime', se."CreatedAt",
-            'SubmitTime', se."SubmittedAt",
-            'DurationMinutes',
-              CASE
-                WHEN se."SubmittedAt" IS NOT NULL
-                THEN FLOOR(EXTRACT(EPOCH FROM (se."SubmittedAt" - se."CreatedAt")) / 60)
-                ELSE NULL
-              END,
-            'BehaviorLogs', (
-              SELECT COALESCE(
-                jsonb_agg(
-                  jsonb_build_object(
-                    'EventType', ebl."EventType",
-                    'EventTime', ebl."EventTime"
-                  )
-                  ORDER BY ebl."EventTime" ASC
-                ),
-                '[]'::jsonb
-              )
-              FROM "ExamBehaviorLogs" ebl
-              WHERE ebl."StudentExamId" = se."StudentExamId"
-            ),
-            'QuestionAttempts', (
-              SELECT COALESCE(
-                jsonb_agg(
-                  jsonb_build_object(
-                    'QuestionId', q."QuestionId",
-                    'TopicName', t."TopicName",
-                    'QuestionSkills', (
-                      SELECT COALESCE(
-                        jsonb_agg(
-                          jsonb_build_object(
-                            'SkillName', sk."SkillName"
-                          )
-                        ),
-                        '[]'::jsonb
-                      )
-                      FROM "QuestionSkills" qs
-                      JOIN "Skills" sk
-                        ON qs."SkillId" = sk."SkillId"
-                      WHERE qs."QuestionId" = q."QuestionId"
-                    ),
-                    'Difficulty', dl."LevelName",
-                    'QuestionType', qt."TypeName",
-                    'TimeSpentSeconds', aq."TimeSpent",
-                    'AnswerChangedCount', aq."AnswerChangedCount",
-                    'IsCorrect', aq."IsCorrect",
-                    'FinalSelectedOption', sa."SelectedOption",
-                    'FinalShortAnswer', sa."ShortAnswer",
-                    'ActionLogs', (
-                      SELECT COALESCE(
-                        jsonb_agg(
-                          jsonb_build_object(
-                            'ActionType', al."ActionType",
-                            'SelectedOption', al."SelectedOption",
-                            'ActionTime', al."CreatedAt"
-                          )
-                          ORDER BY al."CreatedAt" ASC
-                        ),
-                        '[]'::jsonb
-                      )
-                      FROM "AnswerLogs" al
-                      WHERE al."AttemptQuestionId" = aq."AttemptQuestionId"
-                    )
-                  )
-                ),
-                '[]'::jsonb
-              )
-              FROM "AttemptQuestions" aq
-              JOIN "Questions" q
-                ON aq."QuestionId" = q."QuestionId"
-              LEFT JOIN "Topics" t
-                ON q."TopicId" = t."TopicId"
-              LEFT JOIN "DifficultyLevels" dl
-                ON q."DifficultyId" = dl."DifficultyId"
-              LEFT JOIN "QuestionTypes" qt
-                ON q."TypeId" = qt."TypeId"
-              LEFT JOIN "StudentAnswers" sa
-                ON aq."AttemptQuestionId" = sa."AttemptQuestionId"
-              WHERE aq."StudentExamId" = se."StudentExamId"
+async getStudentExamDetail(studentId, studentExamId) {
+  const result = await prisma.$queryRaw`
+    SELECT jsonb_build_object(
+      'StudentId', s."StudentId",
+      'FullName', s."FullName",
+      'Email', s."Email",
+      
+      -- Thay đổi 1: Truy vấn danh sách lớp học thông qua bảng Enrollment
+      'Classes', (
+        SELECT COALESCE(
+          jsonb_agg(
+            jsonb_build_object(
+              'ClassId', c."ClassId",
+              'ClassName', c."ClassName",
+              'Status', en."Status"
             )
-          )
-          FROM "StudentExams" se
-          JOIN "Exams" e
-            ON se."ExamId" = e."ExamId"
-          WHERE se."StudentExamId" = ${Number(studentExamId)}
-            AND se."StudentId" = s."StudentId"
+          ),
+          '[]'::jsonb
         )
-      ) AS result
-      FROM "Students" s
-      LEFT JOIN "Classes" c
-        ON s."ClassId" = c."ClassId"
-      WHERE s."StudentId" = ${Number(studentId)}
-        AND s."is_deleted" = false
-      LIMIT 1
-    `;
-  
-    return result?.[0]?.result || null;
-  }
+        FROM "Enrollment" en
+        JOIN "Classes" c ON en."ClassId" = c."ClassId"
+        WHERE en."StudentId" = s."StudentId"
+          AND en."Status" = 'active' -- Lọc những lớp học đang active
+      ),
+
+      'ExamDetails', (
+        SELECT jsonb_build_object(
+          'StudentExamId', se."StudentExamId",
+          'ExamName', e."ExamName",
+          'AttemptNo', se."AttemptNo",
+          'Score', se."Score",
+          'Status', se."Status",
+          'IsAutoSubmitted', se."IsAutoSubmitted",
+          'StartTime', se."CreatedAt",
+          'SubmitTime', se."SubmittedAt",
+          'DurationMinutes',
+            CASE
+              WHEN se."SubmittedAt" IS NOT NULL
+              THEN FLOOR(EXTRACT(EPOCH FROM (se."SubmittedAt" - se."CreatedAt")) / 60)
+              ELSE NULL
+            END,
+          'BehaviorLogs', (
+            SELECT COALESCE(
+              jsonb_agg(
+                jsonb_build_object(
+                  'EventType', ebl."EventType",
+                  'EventTime', ebl."EventTime"
+                )
+                ORDER BY ebl."EventTime" ASC
+              ),
+              '[]'::jsonb
+            )
+            FROM "ExamBehaviorLogs" ebl
+            WHERE ebl."StudentExamId" = se."StudentExamId"
+          ),
+          'QuestionAttempts', (
+            SELECT COALESCE(
+              jsonb_agg(
+                jsonb_build_object(
+                  'QuestionId', q."QuestionId",
+                  'TopicName', t."TopicName",
+                  'QuestionSkills', (
+                    SELECT COALESCE(
+                      jsonb_agg(
+                        jsonb_build_object(
+                          'SkillName', sk."SkillName"
+                        )
+                      ),
+                      '[]'::jsonb
+                    )
+                    FROM "QuestionSkills" qs
+                    JOIN "Skills" sk
+                      ON qs."SkillId" = sk."SkillId"
+                    WHERE qs."QuestionId" = q."QuestionId"
+                  ),
+                  'Difficulty', dl."LevelName",
+                  'QuestionType', qt."TypeName",
+                  'TimeSpentSeconds', aq."TimeSpent",
+                  'AnswerChangedCount', aq."AnswerChangedCount",
+                  'IsCorrect', aq."IsCorrect",
+                  'FinalSelectedOption', sa."SelectedOption",
+                  'FinalShortAnswer', sa."ShortAnswer",
+                  'ActionLogs', (
+                    SELECT COALESCE(
+                      jsonb_agg(
+                        jsonb_build_object(
+                          'ActionType', al."ActionType",
+                          'SelectedOption', al."SelectedOption",
+                          'ActionTime', al."CreatedAt"
+                        )
+                        ORDER BY al."CreatedAt" ASC
+                      ),
+                      '[]'::jsonb
+                    )
+                    FROM "AnswerLogs" al
+                    WHERE al."AttemptQuestionId" = aq."AttemptQuestionId"
+                  )
+                )
+              ),
+              '[]'::jsonb
+            )
+            FROM "AttemptQuestions" aq
+            JOIN "Questions" q
+              ON aq."QuestionId" = q."QuestionId"
+            LEFT JOIN "Topics" t
+              ON q."TopicId" = t."TopicId"
+            LEFT JOIN "DifficultyLevels" dl
+              ON q."DifficultyId" = dl."DifficultyId"
+            LEFT JOIN "QuestionTypes" qt
+              ON q."TypeId" = qt."TypeId"
+            LEFT JOIN "StudentAnswers" sa
+              ON aq."AttemptQuestionId" = sa."AttemptQuestionId"
+            WHERE aq."StudentExamId" = se."StudentExamId"
+          )
+        )
+        FROM "StudentExams" se
+        JOIN "Exams" e
+          ON se."ExamId" = e."ExamId"
+        WHERE se."StudentExamId" = ${Number(studentExamId)}
+          AND se."StudentId" = s."StudentId"
+      )
+    ) AS result
+    FROM "Students" s
+    
+    -- Thay đổi 2: Xóa LEFT JOIN "Classes" c ở đây
+    
+    WHERE s."StudentId" = ${Number(studentId)}
+      AND s."is_deleted" = false
+    LIMIT 1
+  `;
+
+  return result?.[0]?.result || null;
+}
 }
 
 export default new StudentExamRepository();

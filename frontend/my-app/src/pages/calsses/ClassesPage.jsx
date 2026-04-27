@@ -13,6 +13,7 @@ export default function ClassesPage() {
     const [openUserSelector, setOpenUserSelector] = useState(false);
     const handleSubmit = async (data, row) => {
         if (row) {
+            await updateClass(row.id, data);
             Toast.success("Cập nhật lớp thành công");
         }
         else {
@@ -29,14 +30,14 @@ export default function ClassesPage() {
     const renderActions = (row) => {
         return (
             <div className="flex justify-center gap-2">
-                <Button variant="primary" onClick={() => handleSubmit(row)}><Pencil size={18} /></Button>
+                <Button variant="primary" onClick={() => handleEdit(row)}><Pencil size={18} /></Button>
                 <Button variant="danger" onClick={() => handleDelete(row)}><Trash2 size={18} /></Button>
             </div>
         );
     };
 
     // eslint-disable-next-line no-unused-vars
-    const { classes, pagination, changePage, searchClass, resetFilters, createClass } = useClasses();
+    const { classes, pagination, changePage, searchClass, resetFilters, createClass,updateClass } = useClasses();
     const { students } = useStudents();
     return (
         <div>
