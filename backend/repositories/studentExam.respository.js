@@ -543,6 +543,22 @@ async getStudentExamDetail(studentId, studentExamId) {
 
   return result?.[0]?.result || null;
 }
+
+
+
+
+}
+
+  const studentExamRepository = new StudentExamRepository();
+  const test = async () => {
+  try{
+    const detail = await studentExamRepository.getStudentExamDetail(13, 29);
+    console.log("Exam Detail:", JSON.stringify(detail, null, 2));
+  }
+  catch(error){
+    console.error("Error fetching exam detail:", error);
+  }
+
 }
 
 export default new StudentExamRepository();
