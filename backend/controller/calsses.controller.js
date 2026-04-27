@@ -7,45 +7,29 @@ class ClassController {
    */
   async createClass(req, res) {
     try {
-      const data = await classService.createClass(req.body);
+      // Nhận payload từ client (tương thích với logic trong Service)
+      const { className, studentIds } = req.body; 
 
+      // Gọi Service xử lý logic
+      const newClass = await classService.createClass(className, studentIds);
+
+      // Trả về response chuẩn
       return res.status(201).json({
-        message: "Create class successfully",
-        data,
+        success: true,
+        message: "Tạo lớp học thành công!",
+        data: newClass
       });
+
     } catch (error) {
-      return res.status(400).json({
-        message: error.message,
+      console.error("Lỗi Controller (createClass):", error.message);
+      
+      return res.status(400).json({ 
+        success: false, 
+        message: error.message || "Đã xảy ra lỗi khi tạo lớp học." 
       });
     }
   }
 
-
-    async createClassHandler (req, res)  {
-  try {
-    const { className, studentIds } = req.body; 
-
-    // Controller chỉ gọi Service và nhận kết quả
-    const newClass = await classService.createClass(className, studentIds);
-
-    // Xử lý Response chuẩn JSON cho Client
-    return res.status(201).json({
-      success: true,
-      message: "Tạo lớp học thành công!",
-      data: newClass
-    });
-
-  } catch (error) {
-    console.error("Lỗi Controller (createClassHandler):", error.message);
-    
-    // Bắt lỗi từ Service (vd: "Tên lớp học không được để trống.")
-    return res.status(400).json({ 
-      success: false, 
-      message: error.message || "Đã xảy ra lỗi khi tạo lớp học." 
-    });
-  }
-
-}
   /**
    * GET ALL (🔥 flexible)
    * GET /api/classes
@@ -73,10 +57,17 @@ class ClassController {
     try {
       const { id } = req.params;
 
+      // 🔥 ĐIỂM SỬA QUAN TRỌNG: 
+      // Phải include thông qua Enrollments thay vì Students trực tiếp
       const data = await classService.getClassById(id, {
         include: {
-          Students: {
-            where: { is_deleted: false },
+          Enrollments: {
+            where: {
+              Student: { is_deleted: false }, // Chỉ lấy học sinh chưa bị xóa mềm
+            },
+            include: {
+              Student: true, // Kéo thông tin học sinh ra
+            },
           },
         },
       });

@@ -3,7 +3,6 @@ import { Prisma } from "@prisma/client";
 
 class ClassRepository {
 
-
   /**
    * GET BY ID
    */
@@ -11,7 +10,12 @@ class ClassRepository {
     return prisma.classes.findUnique({
       where: { ClassId: id },
       include: options.include || {
-        Students: true,
+        // Đi qua bảng trung gian Enrollment để lấy thông tin Student
+        Enrollments: {
+          include: {
+            Student: true
+          }
+        },
       },
     });
   }
@@ -42,9 +46,16 @@ class ClassRepository {
    * HARD DELETE (cẩn thận)
    */
   async hardDelete(id) {
-    return prisma.classes.delete({
-      where: { ClassId: id },
-    });
+    // Lưu ý: Vì có bảng trung gian, nên xóa dữ liệu ở Enrollment trước
+    // để tránh lỗi Foreign Key Constraint, sau đó mới xóa Class.
+    return prisma.$transaction([
+      prisma.enrollment.deleteMany({
+        where: { ClassId: id }
+      }),
+      prisma.classes.delete({
+        where: { ClassId: id },
+      })
+    ]);
   }
 
   /**
@@ -102,17 +113,28 @@ class ClassRepository {
         take,
         orderBy,
         include: {
+          // Lấy danh sách học sinh thông qua Enrollments
           ...(includeStudents && {
-            Students: {
-              where: { is_deleted: false },
+            Enrollments: {
+              where: { 
+                Student: { is_deleted: false },
+                // Có thể thêm điều kiện Status: 'active' nếu cần
+                // Status: 'active' 
+              },
+              include: {
+                Student: true // Kéo dữ liệu bảng Students
+              }
             },
           }),
 
-          // 🔥 COUNT STUDENTS
+          // 🔥 COUNT STUDENTS thông qua bảng Enrollments
           _count: {
             select: {
-              Students: {
-                where: { is_deleted: false }, // chỉ đếm student chưa xóa
+              Enrollments: {
+                where: { 
+                  Student: { is_deleted: false }, // Chỉ đếm student chưa xóa
+                  // Status: 'active' // Có thể mở comment nếu chỉ muốn đếm học sinh đang active
+                }, 
               },
             },
           },
@@ -125,8 +147,9 @@ class ClassRepository {
     // 🔥 Format lại cho đẹp (optional)
     const formattedData = data.map((item) => ({
       ...item,
-      studentCount: item._count.Students,
-      _count: undefined, // nếu không muốn trả về _count
+      // Map từ item._count.Enrollments thay vì item._count.Students
+      studentCount: item._count.Enrollments,
+      _count: undefined, // Xóa object _count khỏi response cho gọn
     }));
 
     return {
@@ -140,20 +163,30 @@ class ClassRepository {
     };
   }
 
-
-async createClassWithStudents(className, validStudentIds = []) {
-    // Format mảng ID thành chuẩn connect của Prisma: [{ StudentId: 1 }, { StudentId: 2 }]
-    const connectData = validStudentIds.map(id => ({ StudentId: id }));
+  /**
+   * CREATE CLASS WITH STUDENTS
+   */
+  async createClassWithStudents(className, validStudentIds = []) {
+    // Chuyển mảng ID thành data để tạo bản ghi trong bảng trung gian Enrollment
+    const enrollmentsData = validStudentIds.map(id => ({ 
+      StudentId: id,
+      Status: 'active' // Có thể set default hoặc truyền từ ngoài vào
+    }));
 
     return await prisma.classes.create({
       data: {
         ClassName: className,
-        Students: {
-          connect: connectData 
+        Enrollments: {
+          create: enrollmentsData // Dùng 'create' thay vì 'connect'
         }
       },
       include: {
-        Students: true // Kéo theo thông tin học sinh trả về
+        // Trả về kèm thông tin học sinh vừa thêm
+        Enrollments: {
+          include: {
+            Student: true
+          }
+        }
       }
     });
   }

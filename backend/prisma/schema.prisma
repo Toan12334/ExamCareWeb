@@ -189,26 +189,42 @@ model StudentExams {
   Students              Students?               @relation(fields: [StudentId], references: [StudentId], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Classes {
-  ClassId    Int       @id @default(autoincrement())
-  ClassName  String
-  CreatedAt  DateTime? @default(now())
-  is_deleted Boolean   @default(false)
 
-  Students Students[]
+model Classes {
+  ClassId     Int          @id @default(autoincrement())
+  ClassName   String?      // Thêm các trường bạn cần
+  CreatedAt   DateTime?    @default(now())
+  is_deleted  Boolean      @default(false)
+
+  // Quan hệ 1-Nhiều với bảng trung gian Enrollment
+  Enrollments Enrollment[]
 }
 
 model Students {
-  StudentId  Int       @id @default(autoincrement())
-  ClassId    Int?
-  FullName   String?
-  Email String?
-  Password   String?
-  CreatedAt  DateTime? @default(now())
-  is_deleted Boolean   @default(false)
+  StudentId    Int            @id @default(autoincrement())
+  FullName     String?
+  Email        String?
+  Password     String?
+  CreatedAt    DateTime?      @default(now())
+  is_deleted   Boolean        @default(false)
 
-  Class        Classes?       @relation(fields: [ClassId], references: [ClassId])
-  StudentExams StudentExams[]
+  StudentExams StudentExams[] // Giữ lại theo code của bạn
+  // Quan hệ 1-Nhiều với bảng trung gian Enrollment
+  Enrollments  Enrollment[]
+}
+
+model Enrollment {
+  ClassId    Int
+  StudentId  Int
+  EnrolledAt DateTime @default(now())
+  Status     String   @default("active") // Ví dụ: active, dropped, completed
+
+  // Thiết lập quan hệ ngược lại
+  Class      Classes  @relation(fields: [ClassId], references: [ClassId])
+  Student    Students @relation(fields: [StudentId], references: [StudentId])
+
+  // Khóa chính kết hợp (Composite Primary Key)
+  @@id([ClassId, StudentId])
 }
 
 model Topics {

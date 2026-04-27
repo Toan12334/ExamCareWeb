@@ -1,7 +1,7 @@
 import classRepository from "../repositories/classes.repository.js";
 import studentRepository from "../repositories/student.repository.js";
+
 class ClassService {
- 
 
   /**
    * GET CLASS BY ID
@@ -15,6 +15,12 @@ class ClassService {
 
     if (!data) {
       throw new Error("Class not found");
+    }
+
+    // Tùy chọn: Format lại dữ liệu nếu có Enrollments đi kèm
+    if (data.Enrollments) {
+      data.Students = data.Enrollments.map(enrollment => enrollment.Student);
+      delete data.Enrollments; // Xóa key Enrollments cho gọn (nếu muốn)
     }
 
     return data;
@@ -81,11 +87,25 @@ class ClassService {
       includeStudents: includeStudents === "true",
     };
 
-    return classRepository.getAllClasses(params);
+    const result = await classRepository.getAllClasses(params);
+
+    // Format lại dữ liệu mảng trả về từ Repository (biến Enrollments -> Students cho Frontend dễ đọc)
+    if (params.includeStudents && result.data) {
+      result.data = result.data.map(classItem => {
+        if (classItem.Enrollments) {
+          classItem.Students = classItem.Enrollments.map(e => e.Student);
+          delete classItem.Enrollments;
+        }
+        return classItem;
+      });
+    }
+
+    return result;
   }
 
-
-
+  /**
+   * CREATE CLASS
+   */
   async createClass(className, studentIdentifiers = []) {
     // 1. Kiểm tra nghiệp vụ (Validation)
     if (!className || className.trim() === "") {
@@ -110,7 +130,14 @@ class ClassService {
     // (Nếu validStudentIds rỗng, lớp học vẫn được tạo nhưng chưa có thành viên)
     const newClass = await classRepository.createClassWithStudents(className, validStudentIds);
 
-    // 5. Trả về kết quả đã xử lý xong xuôi
+    // 5. Format lại dữ liệu trước khi trả về (Chuyển Enrollments thành Students)
+    // Điều này giúp giữ nguyên cấu trúc Response cũ, Frontend không cần sửa code!
+    if (newClass.Enrollments) {
+      newClass.Students = newClass.Enrollments.map(enrollment => enrollment.Student);
+      delete newClass.Enrollments; 
+    }
+
+    // 6. Trả về kết quả đã xử lý xong xuôi
     return newClass;
   }
 }
