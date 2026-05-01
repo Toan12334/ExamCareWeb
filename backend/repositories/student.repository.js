@@ -85,6 +85,7 @@ class StudentRepository {
   async search(keyword) {
     return await prisma.students.findMany({
       where: {
+        is_deleted: false,
         OR: [
           {
             FullName: {
