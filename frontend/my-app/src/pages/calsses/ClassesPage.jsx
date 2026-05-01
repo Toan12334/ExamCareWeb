@@ -30,8 +30,10 @@ export default function ClassesPage() {
     const handleEdit = async (row) => {
         console.log("Edit row:", row);
         const classData = await getClassById(row.id);
+        console.log("Fetched class data for editing:", classData);
         setDataEdit(classData);
         setOpenUserSelector(true);
+        return classData;
     }
 
     const renderActions = (row) => {

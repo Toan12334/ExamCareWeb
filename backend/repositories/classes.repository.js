@@ -6,19 +6,20 @@ class ClassRepository {
   /**
    * GET BY ID
    */
-  async getById(id, options = {}) {
-    return prisma.classes.findUnique({
-      where: { ClassId: id },
-      include: options.include || {
-        // Đi qua bảng trung gian Enrollment để lấy thông tin Student
-        Enrollments: {
-          include: {
-            Student: true
-          }
-        },
-      },
-    });
-  }
+async getById(id, options = {}) {
+  return prisma.classes.findFirst({
+    where: { 
+      ClassId: id 
+    },
+    include: options.include || {
+      Enrollments: {
+        include: {
+          Student: true
+        }
+      }
+    }
+  });
+}
 
   /**
    * UPDATE

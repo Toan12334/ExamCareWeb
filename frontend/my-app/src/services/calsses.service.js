@@ -8,6 +8,7 @@ class ClassService {
 
   async getById(id) {
     const res = await axiosClient.get(`/classes/${id}`);
+    console.log("Response from getById:", res);
     return res.data;
   }
 
