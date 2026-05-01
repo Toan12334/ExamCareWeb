@@ -23,8 +23,8 @@ async create(data) {
     return res.data;
   }
 
-  async delete(id) {
-    const res = await axiosClient.delete(`/classes/${id}`);
+  async deleteSoft(id) {
+    const res = await axiosClient.patch(`/classes/${id}`);
     return res.data;
   }
 }

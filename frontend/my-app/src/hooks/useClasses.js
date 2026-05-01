@@ -109,9 +109,20 @@ export default function useClasses(initialParams = {}) {
   /**
    * DELETE
    */
-  const deleteClass = async (id) => {
-    await classApi.delete(id);
-    await fetchClasses();
+  const deleteSoft = async (id) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await classApi.deleteSoft(id);
+      await fetchClasses();
+
+    } catch (err) {
+      console.error("Delete class failed:", err);
+      setError(err?.message || "Delete class failed");
+      throw err; // re-throw để component có thể xử lý riêng
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -138,7 +149,7 @@ export default function useClasses(initialParams = {}) {
     const cleanParams = {
       page: 1,
       pageSize: params.pageSize,
-      search : "",
+      search: "",
     };
     setParams(cleanParams);        // 🔥 reset state
     fetchClasses(cleanParams);     // 🔥 gọi API KHÔNG có filter
@@ -162,12 +173,12 @@ export default function useClasses(initialParams = {}) {
     fetchClasses,
     createClass,
     updateClass,
-    deleteClass,
+    deleteSoft,
 
     // table control
     changePage,
     searchClass,
-    resetFilters,getClassById,
+    resetFilters, getClassById,
   };
 }
 

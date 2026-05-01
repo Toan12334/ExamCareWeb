@@ -8,6 +8,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useStudents from "../../hooks/useStudent.js";
 import Toast from "../../utils/toast.js";
+import DeleteConfirmation from "../../components/modal/DeleteConfirmation.jsx";
 export default function ClassesPage() {
 
     const [openUserSelector, setOpenUserSelector] = useState(false);
@@ -50,18 +51,23 @@ export default function ClassesPage() {
         setOpenUserSelector(true);
         return classData;
     }
+    const handleDelete = async (row) => {
+     
+        <DeleteConfirmation itemName="Có chắc muốn xóa lớp này không?" onDelete={ deleteSoft(row.ClassId)} isDeleting={loading} />
+    };
 
     const renderActions = (row) => {
         return (
             <div className="flex justify-center gap-2">
                 <Button disabled={loading} variant="primary" onClick={() => handleEdit(row)}><Pencil size={18} /></Button>
-                <Button variant="danger" onClick={() => handleDelete(row)}><Trash2 size={18} /></Button>
+                <Button variant="danger" onClick={async () => await handleDelete(row)}><Trash2 size={18} /></Button>
             </div>
         );
     };
 
     // eslint-disable-next-line no-unused-vars
-    const { loading, classes, pagination, changePage, searchClass, resetFilters, createClass, updateClass, getClassById, setLoading } = useClasses();
+    const { loading, classes, pagination, changePage, searchClass, resetFilters,
+         createClass, updateClass, getClassById, setLoading ,deleteSoft} = useClasses();
     const { students } = useStudents();
     return (
         <div>
