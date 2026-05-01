@@ -19,6 +19,8 @@ export default function ClassesPage() {
         try {
             if (calssIdEdit) {
                 await updateClass(calssIdEdit, data);
+                setOpenUserSelector(false);
+                setClassIdEdit(null);
                 Toast.success("Cập nhật lớp thành công");
                 return;
             } else {

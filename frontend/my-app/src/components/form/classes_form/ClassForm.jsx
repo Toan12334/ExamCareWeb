@@ -6,6 +6,7 @@ export default function UserSelector({ onClose, onSubmit, studentData = [], data
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
+  console.log("selectedStudentIds:", selectedStudentIds);
   // SỬA LỖI 1 & 2: Dùng useEffect để khởi tạo dữ liệu khi mở Form Edit
   useEffect(() => {
     if (dataEdit) {
