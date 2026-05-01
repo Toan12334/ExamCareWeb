@@ -11,6 +11,7 @@ import Toast from "../../utils/toast.js";
 export default function ClassesPage() {
 
     const [openUserSelector, setOpenUserSelector] = useState(false);
+    const [dataEdit, setDataEdit] = useState(null);
     const handleSubmit = async (data, row) => {
         if (row) {
             await updateClass(row.id, data);
@@ -26,6 +27,12 @@ export default function ClassesPage() {
         console.log("Open form for row:", row);
         setOpenUserSelector(true);
     }
+    const handleEdit = async (row) => {
+        console.log("Edit row:", row);
+        const classData = await getClassById(row.id);
+        setDataEdit(classData);
+        setOpenUserSelector(true);
+    }
 
     const renderActions = (row) => {
         return (
@@ -37,7 +44,7 @@ export default function ClassesPage() {
     };
 
     // eslint-disable-next-line no-unused-vars
-    const { classes, pagination, changePage, searchClass, resetFilters, createClass,updateClass } = useClasses();
+    const { classes, pagination, changePage, searchClass, resetFilters, createClass,updateClass,getClassById } = useClasses();
     const { students } = useStudents();
     return (
         <div>

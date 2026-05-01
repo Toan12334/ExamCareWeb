@@ -62,6 +62,21 @@ export default function useClasses(initialParams = {}) {
   };
 
   /**
+   * GET BY ID
+   */
+  const getClassById = async (id) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await classApi.getById(id);
+      return res.data;
+    } catch (err) {
+      setError(err?.message || "Fetch class details failed");
+      throw err; // re-throw để component có thể xử lý riêng
+    }
+  }
+
+  /**
    * CREATE
    */
   const createClass = async (data) => {
@@ -137,6 +152,8 @@ export default function useClasses(initialParams = {}) {
     // table control
     changePage,
     searchClass,
-    resetFilters,
+    resetFilters,getClassById,
   };
 }
+
+
