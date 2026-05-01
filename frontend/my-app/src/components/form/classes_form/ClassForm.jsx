@@ -1,42 +1,61 @@
-import React, { useState } from 'react';
-
-// Bỏ mockUsers đi, nhận dữ liệu trực tiếp từ prop `studentData`
-// Thêm prop `onSubmit` để truyền dữ liệu ngược lại cho component cha gọi API
-export default function UserSelector({ onClose, onSubmit, studentData = [] }) {
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useState, useEffect, useMemo } from 'react';
+import Button from "../../ui/Button.jsx";
+export default function UserSelector({ onClose, onSubmit, studentData = [], dataEdit = null ,loading}) {
   const [className, setClassName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudentIds, setSelectedStudentIds] = useState([]); // Đổi tên state cho chuẩn DB
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
-  // Lọc danh sách học sinh. Lưu ý: Thêm `|| ""` để tránh lỗi nếu FullName hoặc Email bị null trong DB
-  const filteredStudents = studentData.filter(student => {
-    const nameMatch = (student.FullName || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const emailMatch = (student.Email || "").toLowerCase().includes(searchTerm.toLowerCase());
-    return nameMatch || emailMatch;
-  });
+  // SỬA LỖI 1 & 2: Dùng useEffect để khởi tạo dữ liệu khi mở Form Edit
+  useEffect(() => {
+    if (dataEdit) {
+      // Set tên lớp
+      setClassName(dataEdit.ClassName || "");
+      
+      // Lấy danh sách ID học sinh đã có trong lớp (tránh vòng lặp vô hạn)
+      if (dataEdit.Students && dataEdit.Students.length > 0) {
+        const editStudentIds = dataEdit.Students.map(student => student.StudentId);
+        setSelectedStudentIds(editStudentIds);
+      }
+    }
+  }, [dataEdit]); // Chỉ chạy lại khi dataEdit thay đổi
 
-  // Xử lý khi click vào checkbox hoặc dòng
+  // TỐI ƯU: Dùng useMemo để tránh filter lại mảng không cần thiết mỗi khi gõ tên lớp
+  const filteredStudents = useMemo(() => {
+    return studentData.filter(student => {
+      const nameMatch = (student.FullName || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const emailMatch = (student.Email || "").toLowerCase().includes(searchTerm.toLowerCase());
+      return nameMatch || emailMatch;
+    });
+  }, [studentData, searchTerm]);
+
   const handleCheckboxChange = (studentId) => {
     setSelectedStudentIds(prev =>
       prev.includes(studentId)
-        ? prev.filter(id => id !== studentId) // Bỏ chọn
-        : [...prev, studentId]                // Chọn thêm
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
     );
   };
-      console.log("Selected Student IDs:", selectedStudentIds);
 
-  // Lấy ra danh sách các học sinh đã được tick chọn để hiển thị ở bảng dưới
-  const selectedStudents = studentData.filter(student => 
-    selectedStudentIds.includes(student.StudentId)
-  );
+  const selectedStudents = useMemo(() => {
+    return studentData.filter(student => 
+      selectedStudentIds.includes(student.StudentId)
+    );
+  }, [studentData, selectedStudentIds]);
+
+  // Biến cờ kiểm tra xem đang là Edit hay Create
+  const isEditMode = !!dataEdit;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      
       <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-200">
         
         {/* HEADER */}
         <div className="flex items-center justify-between p-5 border-b bg-gray-50">
-          <h2 className="text-xl font-bold text-gray-800">Tạo lớp học mới</h2>
+          {/* Đổi tiêu đề động theo chế độ */}
+          <h2 className="text-xl font-bold text-gray-800">
+            {isEditMode ? "Chỉnh sửa lớp học" : "Tạo lớp học mới"}
+          </h2>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-gray-700"
@@ -60,7 +79,7 @@ export default function UserSelector({ onClose, onSubmit, studentData = [] }) {
               type="text"
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Ví dụ: Lớp ReactJS Căn bản..."
-              value={className}
+              value={className} // SỬA LỖI 2: Chỉ gọi value={className}
               onChange={(e) => setClassName(e.target.value)}
             />
           </div>
@@ -94,9 +113,9 @@ export default function UserSelector({ onClose, onSubmit, studentData = [] }) {
               {filteredStudents.length > 0 ? (
                 filteredStudents.map(student => (
                   <li 
-                    key={student.StudentId} // Đổi key thành StudentId
+                    key={student.StudentId}
                     className="flex items-center p-3 hover:bg-blue-50 transition-colors cursor-pointer group"
-                    onClick={() => handleCheckboxChange(student.StudentId)} // Truyền StudentId
+                    onClick={() => handleCheckboxChange(student.StudentId)}
                   >
                     <input
                       type="checkbox"
@@ -105,9 +124,7 @@ export default function UserSelector({ onClose, onSubmit, studentData = [] }) {
                       readOnly
                     />
                     <div className="ml-4 flex-1">
-                      {/* Đổi thành FullName */}
                       <p className="text-sm font-semibold text-gray-900">{student.FullName || "Chưa cập nhật tên"}</p>
-                      {/* Đổi thành Email */}
                       <p className="text-xs text-gray-500">{student.Email || "Chưa có email"}</p>
                     </div>
                   </li>
@@ -168,9 +185,8 @@ export default function UserSelector({ onClose, onSubmit, studentData = [] }) {
           >
             Đóng
           </button>
-          <button 
+          <Button 
             onClick={() => {
-              // Gọi hàm onSubmit truyền từ component cha vào để gọi API createClass
               if (onSubmit) {
                 onSubmit({
                   className: className.trim(),
@@ -178,11 +194,12 @@ export default function UserSelector({ onClose, onSubmit, studentData = [] }) {
                 });
               }
             }}
-            disabled={className.trim() === "" || selectedStudents.length === 0}
+            disabled={className.trim() === "" || selectedStudents.length === 0||loading} // Vô hiệu hóa nếu chưa nhập tên lớp hoặc chưa chọn học sinh hoặc đang loading
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-200"
           >
-            Xác nhận tạo lớp
-          </button>
+            {/* Đổi chữ của nút bấm */}
+            {isEditMode ? "Cập nhật lớp" : "Xác nhận tạo lớp"}
+          </Button>
         </div>
       </div>
     </div>

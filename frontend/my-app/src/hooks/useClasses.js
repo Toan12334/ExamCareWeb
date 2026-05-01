@@ -74,6 +74,9 @@ export default function useClasses(initialParams = {}) {
       setError(err?.message || "Fetch class details failed");
       throw err; // re-throw để component có thể xử lý riêng
     }
+    finally {
+      setLoading(false);
+    }
   }
 
   /**
@@ -88,8 +91,19 @@ export default function useClasses(initialParams = {}) {
    * UPDATE
    */
   const updateClass = async (id, payload) => {
-    await classApi.update(id, payload);
-    await fetchClasses();
+    try {
+      setLoading(true);
+      setError(null);
+      await classApi.update(id, payload);
+      await fetchClasses();
+    } catch (err) {
+      console.error("Update class failed:", err);
+      setError(err?.message || "Update class failed");
+      throw err; // re-throw để component có thể xử lý riêng
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   /**
@@ -141,6 +155,7 @@ export default function useClasses(initialParams = {}) {
     classes,
     pagination,
     loading,
+    setLoading,
     error,
 
     // actions

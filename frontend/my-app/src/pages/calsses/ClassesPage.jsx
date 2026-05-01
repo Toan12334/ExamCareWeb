@@ -12,25 +12,38 @@ export default function ClassesPage() {
 
     const [openUserSelector, setOpenUserSelector] = useState(false);
     const [dataEdit, setDataEdit] = useState(null);
-    const handleSubmit = async (data, row) => {
-        if (row) {
-            await updateClass(row.id, data);
-            Toast.success("Cập nhật lớp thành công");
+    const [calssIdEdit, setClassIdEdit] = useState(null);
+    const handleSubmit = async (data) => {
+        setLoading(true);
+
+        try {
+            if (calssIdEdit) {
+                await updateClass(calssIdEdit, data);
+                Toast.success("Cập nhật lớp thành công");
+                return;
+            } else {
+                await createClass(data);
+                setOpenUserSelector(false);
+                Toast.success("Tạo lớp thành công");
+                return;
+            }
+        } catch (error) {
+            console.error(error);
+            Toast.error("Có lỗi xảy ra");
+        } finally {
+            setLoading(false);
         }
-        else {
-            await createClass(data);
-            setOpenUserSelector(false);
-            Toast.success("Tạo lớp thành công");
-        }
-    }
+    };
     const handleOpenForm = (row) => {
         console.log("Open form for row:", row);
+        setClassIdEdit(null); // Reset classIdEdit khi mở form mới
+        setDataEdit(null); // Reset dataEdit khi mở form mới
         setOpenUserSelector(true);
     }
     const handleEdit = async (row) => {
         console.log("Edit row:", row);
-        const classData = await getClassById(row.id);
-        console.log("Fetched class data for editing:", classData);
+        const classData = await getClassById(row.ClassId);
+        setClassIdEdit(row.ClassId);
         setDataEdit(classData);
         setOpenUserSelector(true);
         return classData;
@@ -39,20 +52,20 @@ export default function ClassesPage() {
     const renderActions = (row) => {
         return (
             <div className="flex justify-center gap-2">
-                <Button variant="primary" onClick={() => handleEdit(row)}><Pencil size={18} /></Button>
+                <Button disabled={loading} variant="primary" onClick={() => handleEdit(row)}><Pencil size={18} /></Button>
                 <Button variant="danger" onClick={() => handleDelete(row)}><Trash2 size={18} /></Button>
             </div>
         );
     };
 
     // eslint-disable-next-line no-unused-vars
-    const { classes, pagination, changePage, searchClass, resetFilters, createClass,updateClass,getClassById } = useClasses();
+    const { loading, classes, pagination, changePage, searchClass, resetFilters, createClass, updateClass, getClassById, setLoading } = useClasses();
     const { students } = useStudents();
     return (
         <div>
             <DataTable2 onAdd={handleOpenForm} renderAction={renderActions} onReset={resetFilters} filters={buildClassFilters} pagination={pagination} onSearch={searchClass} onPageChange={changePage}
                 data={classes} title="Quản lý lớp" columns={classesColumns()} />
-            {openUserSelector && <UserSelector onSubmit={handleSubmit} studentData={students} onClose={() => { setOpenUserSelector(false) }} />}
+            {openUserSelector && <UserSelector loading={loading} dataEdit={dataEdit} onSubmit={handleSubmit} studentData={students} onClose={() => { setOpenUserSelector(false) }} />}
         </div>
 
     )

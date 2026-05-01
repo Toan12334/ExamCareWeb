@@ -25,12 +25,35 @@ async getById(id, options = {}) {
    * UPDATE
    */
   async update(id, data) {
-    return prisma.classes.update({
-      where: { ClassId: id },
-      data,
-    });
-  }
+  const { className, studentIds } = data;
 
+  return prisma.classes.update({
+    where: { 
+      ClassId: id 
+    },
+    data: {
+      // 1. Cập nhật tên lớp (nhớ dùng đúng ClassName như trong Schema)
+      ClassName: className, 
+
+      // 2. Cập nhật danh sách sinh viên trong bảng trung gian Enrollment
+      Enrollments: {
+        // Xóa tất cả các liên kết cũ của lớp này trong bảng Enrollment
+        deleteMany: {}, 
+        
+        // Thêm các liên kết mới dựa trên danh sách studentIds gửi lên
+        create: studentIds.map((sId) => ({
+          Student: {
+            connect: { StudentId: sId }
+          }
+        })),
+      },
+    },
+    // Trả về kèm theo danh sách Enrollment sau khi update để kiểm tra
+    include: {
+      Enrollments: true,
+    },
+  });
+}
   /**
    * SOFT DELETE
    */
