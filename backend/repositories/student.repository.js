@@ -49,6 +49,8 @@ class StudentRepository {
 
   // update student
   async update(id, data) {
+    const salt = await bcrypt.genSalt(10)
+    data.Password = await bcrypt.hash(data.Password, salt)
     return await prisma.students.update({
       where: {
         StudentId: id
