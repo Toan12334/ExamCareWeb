@@ -52,22 +52,23 @@ export default function ClassesPage() {
         return classData;
     }
     const handleDelete = async (row) => {
-     
-        <DeleteConfirmation itemName="Có chắc muốn xóa lớp này không?" onDelete={ deleteSoft(row.ClassId)} isDeleting={loading} />
+        await deleteSoft(row.ClassId);
+        Toast.success("Xóa lớp thành công");
     };
 
     const renderActions = (row) => {
         return (
             <div className="flex justify-center gap-2">
                 <Button disabled={loading} variant="primary" onClick={() => handleEdit(row)}><Pencil size={18} /></Button>
-                <Button variant="danger" onClick={async () => await handleDelete(row)}><Trash2 size={18} /></Button>
+                <DeleteConfirmation itemName="Có chắc muốn xóa lớp này không?" onDelete={() => handleDelete(row)} isDeleting={loading}>   
+                </DeleteConfirmation>
             </div>
         );
     };
 
     // eslint-disable-next-line no-unused-vars
     const { loading, classes, pagination, changePage, searchClass, resetFilters,
-         createClass, updateClass, getClassById, setLoading ,deleteSoft} = useClasses();
+        createClass, updateClass, getClassById, setLoading, deleteSoft } = useClasses();
     const { students } = useStudents();
     return (
         <div>

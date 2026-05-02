@@ -85,107 +85,101 @@ async getById(id, options = {}) {
   /**
    * GET ALL - FLEXIBLE (🔥 quan trọng)
    */
-  async getAllClasses(params = {}) {
-    const {
-      page = 1,
-      pageSize = 10,
-      search,
-      is_deleted,
-      fromDate,
-      toDate,
-      sortBy = "CreatedAt",
-      sortOrder = "desc",
-      includeStudents = false,
-    } = params;
+async getAllClasses(params = {}) {
+  const {
+    page = 1,
+    pageSize = 10,
+    search,
+    // Mặc định là false để luôn lấy dữ liệu chưa xóa trừ khi có yêu cầu khác
+    is_deleted = false,
+    fromDate,
+    toDate,
+    sortBy = "CreatedAt",
+    sortOrder = "desc",
+    includeStudents = false,
+  } = params;
 
-    const skip = (page - 1) * pageSize;
-    const take = Number(pageSize);
+  const skip = (page - 1) * pageSize;
+  const take = Number(pageSize);
 
-    // WHERE
-    const where = {
-      AND: [
-        typeof is_deleted === "boolean" ? { is_deleted } : {},
+  // Xây dựng điều kiện WHERE
+  const where = {
+    // Luôn lọc theo trạng thái xóa
+    is_deleted: typeof is_deleted === "boolean" ? is_deleted : false,
+  };
 
-        search
-          ? {
-            ClassName: {
-              contains: search,
-              mode: "insensitive",
-            },
-          }
-          : {},
-
-        fromDate || toDate
-          ? {
-            CreatedAt: {
-              ...(fromDate && { gte: new Date(fromDate) }),
-              ...(toDate && { lte: new Date(toDate) }),
-            },
-          }
-          : {},
-      ],
+  // Nếu có tìm kiếm, thêm vào điều kiện (Prisma tự hiểu là AND khi thêm key)
+  if (search) {
+    where.ClassName = {
+      contains: search,
+      mode: "insensitive",
     };
+  }
 
-    const orderBy = {
-      [sortBy]: sortOrder,
+  // Lọc theo ngày tháng
+  if (fromDate || toDate) {
+    where.CreatedAt = {
+      ...(fromDate && { gte: new Date(fromDate) }),
+      ...(toDate && { lte: new Date(toDate) }),
     };
+  }
 
-    const [data, total] = await Promise.all([
-      prisma.classes.findMany({
-        where,
-        skip,
-        take,
-        orderBy,
-        include: {
-          // Lấy danh sách học sinh thông qua Enrollments
-          ...(includeStudents && {
+  const orderBy = {
+    [sortBy]: sortOrder,
+  };
+
+  const [data, total] = await Promise.all([
+    prisma.classes.findMany({
+      where,
+      skip,
+      take,
+      orderBy,
+      include: {
+        // Lấy danh sách học sinh (Enrollments)
+        ...(includeStudents && {
+          Enrollments: {
+            where: { 
+              Student: { is_deleted: false }, // Chỉ lấy học sinh chưa bị xóa
+            },
+            include: {
+              Student: true
+            }
+          },
+        }),
+
+        // Đếm số lượng học sinh trong lớp
+        _count: {
+          select: {
             Enrollments: {
               where: { 
                 Student: { is_deleted: false },
-                // Có thể thêm điều kiện Status: 'active' nếu cần
-                // Status: 'active' 
-              },
-              include: {
-                Student: true // Kéo dữ liệu bảng Students
-              }
-            },
-          }),
-
-          // 🔥 COUNT STUDENTS thông qua bảng Enrollments
-          _count: {
-            select: {
-              Enrollments: {
-                where: { 
-                  Student: { is_deleted: false }, // Chỉ đếm student chưa xóa
-                  // Status: 'active' // Có thể mở comment nếu chỉ muốn đếm học sinh đang active
-                }, 
-              },
+              }, 
             },
           },
         },
-      }),
-
-      prisma.classes.count({ where }),
-    ]);
-
-    // 🔥 Format lại cho đẹp (optional)
-    const formattedData = data.map((item) => ({
-      ...item,
-      // Map từ item._count.Enrollments thay vì item._count.Students
-      studentCount: item._count.Enrollments,
-      _count: undefined, // Xóa object _count khỏi response cho gọn
-    }));
-
-    return {
-      data: formattedData,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize),
       },
-    };
-  }
+    }),
+
+    prisma.classes.count({ where }),
+  ]);
+
+  // Format dữ liệu trả về
+  const formattedData = data.map((item) => ({
+    ...item,
+    studentCount: item._count?.Enrollments || 0,
+    _count: undefined, 
+  }));
+
+  return {
+    data: formattedData,
+    pagination: {
+      page: Number(page),
+      pageSize: Number(pageSize),
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    },
+  };
+}
 
   /**
    * CREATE CLASS WITH STUDENTS
