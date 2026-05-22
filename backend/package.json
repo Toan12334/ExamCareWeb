@@ -19,6 +19,8 @@
   "dependencies": {
     "@prisma/adapter-mssql": "^7.5.0",
     "@prisma/client": "^6.19.3",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
     "axios": "^1.14.0",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.9.0",
