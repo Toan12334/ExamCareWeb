@@ -1,7 +1,10 @@
 import axiosClient from "./http.js"
 
 export const getStudent=async()=>{
-   const result = await axiosClient.get("/students/")
+   const result = await axiosClient.get("/students")
+   if (!Array.isArray(result.data)) {
+      throw new Error("API không trả về danh sách học sinh. Vui lòng thử lại.")
+   }
    return result.data
 }
 

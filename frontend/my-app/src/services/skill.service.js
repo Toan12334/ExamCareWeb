@@ -6,7 +6,7 @@ export const getSkillOverview = async () => {
 }
 
 export const getAllSkill  = async () => {
-    const result = await axiosClient.get("/skills/");
+    const result = await axiosClient.get("/skills");
     return result.data
 }
 
@@ -23,7 +23,7 @@ export const searchSkillData = async ({ keyword = "", topicId, page = 1, pageSiz
 }
 
 export const createSkill =async (data)=>{
-    const result =await axiosClient.post("/skills/",data)
+    const result =await axiosClient.post("/skills",data)
     return result
     
 }
@@ -42,6 +42,3 @@ export const deleteSkill =async  (id)=>{
     return result.data
 
 }
-
-
-    

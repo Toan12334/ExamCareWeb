@@ -10,10 +10,11 @@ export default function useStudent() {
   const fetchStudents = useCallback(async () => {
     try {
       setLoading(true)
+      setError(null)
       const res = await getStudent()
       setStudents(res)
     } catch (err) {
-      setError(err)
+      setError(err.response?.data?.message || err.message)
     } finally {
       setLoading(false)
     }

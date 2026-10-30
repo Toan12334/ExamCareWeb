@@ -9,7 +9,7 @@ import DeleteConfirmation from "../components/modal/DeleteConfirmation.jsx"
 import Toast from "../utils/toast.js"
 export function StudentManagePage() {
 
-    const { students, createStudent, getStudentId, updateStudentId, deleteStudent, searchStudent, fetchStudents } = useStudent()
+    const { students, loading, error, createStudent, getStudentId, updateStudentId, deleteStudent, searchStudent, fetchStudents } = useStudent()
 
     const [openForm, setOpenForm] = useState(false)
     const [editingStudent, setEditingStudent] = useState(null)
@@ -55,7 +55,14 @@ export function StudentManagePage() {
         <div>
             <StudentFilter onSearch={searchStudent} onReset={fetchStudents} />
 
-            <DataTable
+            {error ? (
+                <div role="alert" className="rounded-xl bg-red-50 p-4 text-red-700">
+                    <p>Không thể tải dữ liệu: {String(error)}</p>
+                    <Button onClick={fetchStudents}>Thử lại</Button>
+                </div>
+            ) : loading ? (
+                <p role="status" className="p-4">Đang tải dữ liệu...</p>
+            ) : <DataTable
                 columns={columns}
                 data={students}
                 onAdd={() => setOpenForm(true)}
@@ -70,7 +77,7 @@ export function StudentManagePage() {
                         </Button>
                     </div>
                 )}
-            />
+            />}
 
             {openForm && (
                 <StudentForm
