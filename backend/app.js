@@ -24,28 +24,44 @@ const __dirname = path.dirname(__filename);
 
 const app = express()
 
-// 👇👇👇 CẤU HÌNH CORS MỚI 👇👇👇
+// --- CẤU HÌNH CORS ---
+const clientUrl = process.env.CLIENT_URL;
 const allowedOrigins = [
-  'http://localhost:5173', // Cổng mặc định của Vite
-  'http://localhost:3000', // Cổng mặc định của React thuần
-  'https://examcareweb.onrender.com', // Thay bằng URL thật của bạn trên Render
-  'https://examcareweb-dockerdocker.onrender.com', // Thay bằng URL thật của bạn trên Render (nếu có)
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:3000', // React dev server
+  ...(clientUrl ? [clientUrl.replace(/\/$/, '')] : []),
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Cho phép các yêu cầu không có origin (như Postman) hoặc nằm trong danh sách trắng
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Chặn bởi CORS: Origin này không được phép!'));
+    // Cho phép các yêu cầu không có origin (Postman, server-to-server, curl)
+    if (!origin) return callback(null, true);
+
+    try {
+      const hostname = new URL(origin).hostname;
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        hostname.endsWith('.vercel.app') ||
+        hostname === 'localhost';
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Chặn bởi CORS: Origin ${origin} không được phép!`));
+      }
+    } catch {
+      callback(new Error('Chặn bởi CORS: Origin không hợp lệ!'));
     }
   },
-  credentials: true // Nếu bạn có dùng Cookie hay Token ở Header
+  credentials: true
 }));
-// 👆👆👆 ====================== 👆👆👆
 
 app.use(express.json())
+
+// --- HEALTH CHECK ---
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "ExamCare Backend API is running!" });
+});
 
 // --- CÁC ROUTE API ---
 app.use("/api/students", studentRoutes)
@@ -59,13 +75,5 @@ app.use("/api/exams", routeExam)
 app.use("/api/student-exam", studentExamRoute)
 app.use("/api/auth", routeAuth)
 app.use("/api/classes", calssRoutes)
-
-// --- PHỤC VỤ FRONTEND ---
-app.use(express.static(path.join(__dirname, "public")));
-
-// Route này giúp Render vẫn chạy được Frontend khi deploy
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
 
 export default app

@@ -8,9 +8,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "build:frontend": "cd ../frontend/my-app && npm install && npm run build",
-    "copy:frontend": "rm -rf public && mkdir public && cp -r ../frontend/my-app/dist/* public/",
-    "build": "npm install && npm run build:frontend && npm run copy:frontend"
+    "build": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
