@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { ROUTES } from "../constants/routes";
 
 const StarIcon = ({ className = "h-5 w-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -128,9 +130,9 @@ function Header() {
           <a href="#results" className="hover:text-indigo-600">Results</a>
         </div>
 
-        <a href="https://examcareweb-dockerdocker.onrender.com/user/manager" className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition-all hover:-translate-y-0.5 hover:bg-emerald-500">
+        <Link to={ROUTES.USER_MANAGER.MANAGER} className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition-all hover:-translate-y-0.5 hover:bg-emerald-500">
           Start Practice
-        </a>
+        </Link>
       </nav>
     </header>
   );
