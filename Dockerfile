@@ -1,28 +1,14 @@
-# Sử dụng Node 20 slim
-FROM node:20-slim
-#ok 
-# Cài đặt Pandoc và OpenSSL (Prisma thường yêu cầu OpenSSL để hoạt động)
-RUN apt-get update && apt-get install -y pandoc openssl && rm -rf /var/lib/apt/lists/*
-
-# Thiết lập thư mục làm việc chính trong container
-WORKDIR /app
-
-# Copy TOÀN BỘ dự án (cả frontend và backend) vào container
-COPY . .
-
-# Di chuyển vào thư mục backend để thực hiện các lệnh cài đặt
+FROM node:22-alpine
+RUN apk add --no-cache pandoc openssl ca-certificates
 WORKDIR /app/backend
-
-# Chạy lệnh build tuyệt vời mà bạn đã viết trong package.json
-# Lệnh này sẽ tự cài npm, tự động lùi ra ngoài build frontend và copy vào public
-RUN npm run build
-
-# Generate Prisma Client (Rất quan trọng, nếu thiếu sẽ lỗi crash server)
-RUN npx prisma generate
-
-# Khai báo cổng
-ENV PORT=10000
-EXPOSE 10000
-
-# Khởi chạy server
+COPY backend/package.json backend/package-lock.json ./
+COPY backend/prisma ./prisma
+COPY backend/prisma.config.ts ./
+RUN npm ci --omit=dev --cache=/tmp/npm-cache && rm -rf /tmp/npm-cache
+COPY --chown=node:node backend/ ./
+RUN mkdir -p uploads && chown -R node:node uploads
+ENV NODE_ENV=production
+ENV PORT=3000
+USER node
+EXPOSE 3000
 CMD ["node", "server.js"]
